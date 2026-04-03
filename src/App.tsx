@@ -11,6 +11,21 @@ import Interviews from "./pages/Interviews.tsx";
 import Videos from "./pages/Videos.tsx";
 import Magazine from "./pages/Magazine.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import AdminLayout from "./pages/admin/AdminLayout.tsx";
+import Dashboard from "./pages/admin/Dashboard.tsx";
+import ArticlesManager from "./pages/admin/ArticlesManager.tsx";
+import MediasManager from "./pages/admin/MediasManager.tsx";
+import Publications from "./pages/admin/Publications.tsx";
+import MagazineManager from "./pages/admin/MagazineManager.tsx";
+import Surveys from "./pages/admin/Surveys.tsx";
+import CommentsManager from "./pages/admin/CommentsManager.tsx";
+import Advertising from "./pages/admin/Advertising.tsx";
+import Subscriptions from "./pages/admin/Subscriptions.tsx";
+import UsersManager from "./pages/admin/UsersManager.tsx";
+import AnalyticsPage from "./pages/admin/AnalyticsPage.tsx";
+import DistributionPage from "./pages/admin/DistributionPage.tsx";
+import SettingsPage from "./pages/admin/SettingsPage.tsx";
+import NotificationsPage from "./pages/admin/NotificationsPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +43,25 @@ const App = () => (
           <Route path="/interviews" element={<Interviews />} />
           <Route path="/videos" element={<Videos />} />
           <Route path="/magazine" element={<Magazine />} />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="articles" element={<ArticlesManager />} />
+            <Route path="medias" element={<MediasManager />} />
+            <Route path="publications" element={<Publications />} />
+            <Route path="magazine" element={<MagazineManager />} />
+            <Route path="surveys" element={<Surveys />} />
+            <Route path="comments" element={<CommentsManager />} />
+            <Route path="advertising" element={<Advertising />} />
+            <Route path="subscriptions" element={<Subscriptions />} />
+            <Route path="users" element={<UsersManager />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="distribution" element={<DistributionPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+          </Route>
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
