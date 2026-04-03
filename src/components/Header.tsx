@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Search, Menu, X, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const navItems = [
   { label: "Accueil", href: "/" },
-  { label: "Portraits", href: "#portraits" },
-  { label: "Business", href: "#business" },
-  { label: "Culture", href: "#culture" },
-  { label: "Interviews", href: "#interviews" },
-  { label: "Vidéos", href: "#videos" },
-  { label: "Magazine", href: "#magazine" },
+  { label: "Portraits", href: "/portraits" },
+  { label: "Business", href: "/business" },
+  { label: "Culture", href: "/culture" },
+  { label: "Interviews", href: "/interviews" },
+  { label: "Vidéos", href: "/videos" },
+  { label: "Magazine", href: "/magazine" },
 ];
 
 const Header = () => {
@@ -37,25 +38,25 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
             <span className="text-gold">N</span>sango
           </h1>
           <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
             Magazine
           </span>
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.label}
-              href={item.href}
+              to={item.href}
               className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-gold transition-colors tracking-wide uppercase font-body"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -104,14 +105,14 @@ const Header = () => {
         <div className="lg:hidden border-t border-border bg-background animate-fade-in">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="px-3 py-3 text-sm font-medium text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg transition-colors uppercase tracking-wider font-body"
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             <Button variant="ghost" className="mt-2 justify-start text-sm uppercase tracking-wider font-body">
               Connexion
