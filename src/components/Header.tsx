@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Menu, X, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const navItems = [
   { label: "Accueil", href: "/" },
