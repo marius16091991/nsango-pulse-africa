@@ -50,13 +50,13 @@ const Header = () => {
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.label}
-              href={item.href}
+              to={item.href}
               className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-gold transition-colors tracking-wide uppercase font-body"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
