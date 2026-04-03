@@ -105,14 +105,14 @@ const Header = () => {
         <div className="lg:hidden border-t border-border bg-background animate-fade-in">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="px-3 py-3 text-sm font-medium text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg transition-colors uppercase tracking-wider font-body"
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             <Button variant="ghost" className="mt-2 justify-start text-sm uppercase tracking-wider font-body">
               Connexion
