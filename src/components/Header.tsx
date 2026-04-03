@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Accueil", href: "/" },
-  { label: "Portraits", href: "#portraits" },
-  { label: "Business", href: "#business" },
-  { label: "Culture", href: "#culture" },
-  { label: "Interviews", href: "#interviews" },
-  { label: "Vidéos", href: "#videos" },
-  { label: "Magazine", href: "#magazine" },
+  { label: "Portraits", href: "/portraits" },
+  { label: "Business", href: "/business" },
+  { label: "Culture", href: "/culture" },
+  { label: "Interviews", href: "/interviews" },
+  { label: "Vidéos", href: "/videos" },
+  { label: "Magazine", href: "/magazine" },
 ];
 
 const Header = () => {
