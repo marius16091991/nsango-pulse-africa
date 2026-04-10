@@ -1,31 +1,47 @@
 import { useState } from "react";
-import { Users, Search, MoreHorizontal, Mail, Ban, Shield, Eye, Crown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Search, MoreHorizontal, Mail, Ban, Shield, Crown } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
 
-const users = [
-  { id: 1, name: "Amara Diallo", email: "amara@example.com", role: "admin", status: "active", joined: "2025-01-15", premium: true },
-  { id: 2, name: "Jean Mabika", email: "jean.m@example.com", role: "editor", status: "active", joined: "2025-03-20", premium: true },
-  { id: 3, name: "Fatou Ndiaye", email: "fatou@example.com", role: "author", status: "active", joined: "2025-06-10", premium: true },
-  { id: 4, name: "Paul Essomba", email: "paul.e@example.com", role: "user", status: "active", joined: "2026-01-05", premium: true },
-  { id: 5, name: "Marie Kouassi", email: "marie.k@example.com", role: "user", status: "suspended", joined: "2025-11-22", premium: false },
-  { id: 6, name: "Omar Sy", email: "omar.s@example.com", role: "user", status: "active", joined: "2026-02-14", premium: false },
-  { id: 7, name: "Chimamanda A.", email: "chima@example.com", role: "author", status: "active", joined: "2025-08-03", premium: false },
-];
+interface User {
+  id: number; name: string; email: string; role: string; status: string; joined: string; premium: boolean;
+}
 
 const roleColors: Record<string, string> = {
-  admin: "bg-red-100 text-red-700",
-  editor: "bg-blue-100 text-blue-700",
-  author: "bg-purple-100 text-purple-700",
-  user: "bg-muted text-muted-foreground",
+  admin: "bg-red-100 text-red-700", editor: "bg-blue-100 text-blue-700",
+  author: "bg-purple-100 text-purple-700", user: "bg-muted text-muted-foreground",
 };
 
 const UsersManager = () => {
+  const [users, setUsers] = useState<User[]>([
+    { id: 1, name: "Amara Diallo", email: "amara@example.com", role: "admin", status: "active", joined: "2025-01-15", premium: true },
+    { id: 2, name: "Jean Mabika", email: "jean.m@example.com", role: "editor", status: "active", joined: "2025-03-20", premium: true },
+    { id: 3, name: "Fatou Ndiaye", email: "fatou@example.com", role: "author", status: "active", joined: "2025-06-10", premium: true },
+    { id: 4, name: "Paul Essomba", email: "paul.e@example.com", role: "user", status: "active", joined: "2026-01-05", premium: true },
+    { id: 5, name: "Marie Kouassi", email: "marie.k@example.com", role: "user", status: "suspended", joined: "2025-11-22", premium: false },
+    { id: 6, name: "Omar Sy", email: "omar.s@example.com", role: "user", status: "active", joined: "2026-02-14", premium: false },
+    { id: 7, name: "Chimamanda A.", email: "chima@example.com", role: "author", status: "active", joined: "2025-08-03", premium: false },
+  ]);
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("all");
+
+  const toggleStatus = (id: number) => {
+    setUsers(prev => prev.map(u => {
+      if (u.id !== id) return u;
+      const newStatus = u.status === "active" ? "suspended" : "active";
+      toast({ title: newStatus === "active" ? "Utilisateur réactivé" : "Utilisateur suspendu", description: u.name });
+      return { ...u, status: newStatus };
+    }));
+  };
+
+  const changeRole = (id: number, newRole: string) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, role: newRole } : u));
+    toast({ title: "Rôle modifié", description: `Nouveau rôle : ${newRole}` });
+  };
 
   const filtered = users.filter((u) => {
     if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
@@ -37,15 +53,15 @@ const UsersManager = () => {
     <div className="p-6 lg:p-8 space-y-6">
       <div>
         <h1 className="text-2xl font-display font-bold">Gestion des utilisateurs</h1>
-        <p className="text-sm text-muted-foreground font-body">{users.length} utilisateurs enregistrés</p>
+        <p className="text-sm text-muted-foreground font-body">{users.length} utilisateurs</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         {[
           { label: "Total", value: users.length, icon: Users },
-          { label: "Admins", value: users.filter((u) => u.role === "admin").length, icon: Shield },
-          { label: "Premium", value: users.filter((u) => u.premium).length, icon: Crown },
-          { label: "Suspendus", value: users.filter((u) => u.status === "suspended").length, icon: Ban },
+          { label: "Admins", value: users.filter(u => u.role === "admin").length, icon: Shield },
+          { label: "Premium", value: users.filter(u => u.premium).length, icon: Crown },
+          { label: "Suspendus", value: users.filter(u => u.status === "suspended").length, icon: Ban },
         ].map((s) => (
           <Card key={s.label}><CardContent className="p-4 flex items-center gap-3"><s.icon className="w-5 h-5 text-gold" /><div><p className="text-xl font-bold font-display">{s.value}</p><p className="text-xs text-muted-foreground font-body">{s.label}</p></div></CardContent></Card>
         ))}
@@ -56,7 +72,7 @@ const UsersManager = () => {
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Rechercher un utilisateur..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder="Rechercher..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <Select value={filterRole} onValueChange={setFilterRole}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
@@ -79,10 +95,7 @@ const UsersManager = () => {
                   <tr key={u.id} className="border-b border-border hover:bg-muted/30">
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        <div>
-                          <p className="font-medium">{u.name}</p>
-                          <p className="text-xs text-muted-foreground">{u.email}</p>
-                        </div>
+                        <div><p className="font-medium">{u.name}</p><p className="text-xs text-muted-foreground">{u.email}</p></div>
                         {u.premium && <Crown className="w-3.5 h-3.5 text-gold" />}
                       </div>
                     </td>
@@ -97,10 +110,9 @@ const UsersManager = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="gap-2"><Eye className="w-4 h-4" /> Voir</DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2"><Mail className="w-4 h-4" /> Email</DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2"><Shield className="w-4 h-4" /> Changer rôle</DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 text-destructive"><Ban className="w-4 h-4" /> Suspendre</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => toast({ title: "Email envoyé", description: u.email })}><Mail className="w-4 h-4" /> Email</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => changeRole(u.id, u.role === "admin" ? "user" : "admin")}><Shield className="w-4 h-4" /> {u.role === "admin" ? "Rétrograder" : "Promouvoir admin"}</DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2 text-destructive" onClick={() => toggleStatus(u.id)}><Ban className="w-4 h-4" /> {u.status === "active" ? "Suspendre" : "Réactiver"}</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
