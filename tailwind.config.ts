@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Playfair Display", "Georgia", "serif"],
-        body: ["Inter", "system-ui", "sans-serif"],
+        display: ["Myriad Pro", "Tahoma", "Geneva", "sans-serif"],
+        body: ["Tahoma", "Geneva", "Verdana", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
