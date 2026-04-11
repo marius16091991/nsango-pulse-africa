@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index.tsx";
 import Portraits from "./pages/Portraits.tsx";
 import Business from "./pages/Business.tsx";
@@ -10,6 +11,7 @@ import Culture from "./pages/Culture.tsx";
 import Interviews from "./pages/Interviews.tsx";
 import Videos from "./pages/Videos.tsx";
 import Magazine from "./pages/Magazine.tsx";
+import Auth from "./pages/Auth.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
@@ -31,42 +33,44 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/portraits" element={<Portraits />} />
-          <Route path="/business" element={<Business />} />
-          <Route path="/culture" element={<Culture />} />
-          <Route path="/interviews" element={<Interviews />} />
-          <Route path="/videos" element={<Videos />} />
-          <Route path="/magazine" element={<Magazine />} />
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/portraits" element={<Portraits />} />
+            <Route path="/business" element={<Business />} />
+            <Route path="/culture" element={<Culture />} />
+            <Route path="/interviews" element={<Interviews />} />
+            <Route path="/videos" element={<Videos />} />
+            <Route path="/magazine" element={<Magazine />} />
+            <Route path="/auth" element={<Auth />} />
 
-          {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="articles" element={<ArticlesManager />} />
-            <Route path="medias" element={<MediasManager />} />
-            <Route path="publications" element={<Publications />} />
-            <Route path="magazine" element={<MagazineManager />} />
-            <Route path="surveys" element={<Surveys />} />
-            <Route path="comments" element={<CommentsManager />} />
-            <Route path="advertising" element={<Advertising />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
-            <Route path="users" element={<UsersManager />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
-            <Route path="distribution" element={<DistributionPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
-          </Route>
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="articles" element={<ArticlesManager />} />
+              <Route path="medias" element={<MediasManager />} />
+              <Route path="publications" element={<Publications />} />
+              <Route path="magazine" element={<MagazineManager />} />
+              <Route path="surveys" element={<Surveys />} />
+              <Route path="comments" element={<CommentsManager />} />
+              <Route path="advertising" element={<Advertising />} />
+              <Route path="subscriptions" element={<Subscriptions />} />
+              <Route path="users" element={<UsersManager />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="distribution" element={<DistributionPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+            </Route>
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
