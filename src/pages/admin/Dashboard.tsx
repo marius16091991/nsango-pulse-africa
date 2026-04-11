@@ -1,120 +1,152 @@
-import { FileText, Users, Eye, Crown, TrendingUp, TrendingDown, ArrowUpRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FileText, Users, Eye, Crown, TrendingUp, TrendingDown, ArrowUpRight, Activity, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
-const stats = [
-  { label: "Articles publiés", value: "342", change: "+12%", up: true, icon: FileText },
-  { label: "Utilisateurs actifs", value: "18.4K", change: "+8.3%", up: true, icon: Users },
-  { label: "Vues ce mois", value: "245K", change: "+22%", up: true, icon: Eye },
-  { label: "Abonnés premium", value: "1,203", change: "-2.1%", up: false, icon: Crown },
-];
+const Dashboard = () => {
+  const { profile } = useAuth();
+  const [articleCount, setArticleCount] = useState(0);
+  const [recentArticles, setRecentArticles] = useState<any[]>([]);
 
-const recentArticles = [
-  { id: 1, title: "Aliko Dangote : L'empire qui redéfinit l'Afrique", status: "published", views: 12400, date: "2 avr. 2026" },
-  { id: 2, title: "Les startups fintech en pleine explosion au Kenya", status: "draft", views: 0, date: "1 avr. 2026" },
-  { id: 3, title: "Fashion Week de Lagos : les créateurs qui brillent", status: "published", views: 8200, date: "31 mars 2026" },
-  { id: 4, title: "Interview exclusive : Ngozi Okonjo-Iweala", status: "scheduled", views: 0, date: "5 avr. 2026" },
-  { id: 5, title: "Le nouveau visage du cinéma africain", status: "review", views: 0, date: "3 avr. 2026" },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      const { count } = await supabase.from("articles").select("*", { count: "exact", head: true });
+      setArticleCount(count || 0);
 
-const statusColors: Record<string, string> = {
-  published: "bg-green-100 text-green-700",
-  draft: "bg-muted text-muted-foreground",
-  scheduled: "bg-blue-100 text-blue-700",
-  review: "bg-amber-100 text-amber-700",
-};
+      const { data } = await supabase
+        .from("articles")
+        .select("id, title, status, views, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setRecentArticles(data || []);
+    };
+    fetchData();
+  }, []);
 
-const statusLabels: Record<string, string> = {
-  published: "Publié",
-  draft: "Brouillon",
-  scheduled: "Programmé",
-  review: "En révision",
-};
+  const stats = [
+    { label: "Articles publiés", value: articleCount.toString(), change: "+12%", up: true, icon: FileText, color: "bg-blue-50 text-blue-600" },
+    { label: "Utilisateurs actifs", value: "18.4K", change: "+8.3%", up: true, icon: Users, color: "bg-green-50 text-green-600" },
+    { label: "Vues ce mois", value: "245K", change: "+22%", up: true, icon: Eye, color: "bg-purple-50 text-purple-600" },
+    { label: "Abonnés premium", value: "1,203", change: "-2.1%", up: false, icon: Crown, color: "bg-gold/10 text-gold-dark" },
+  ];
 
-const Dashboard = () => (
-  <div className="p-6 lg:p-8 space-y-6">
-    {/* Header */}
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-display font-bold">Tableau de bord</h1>
-        <p className="text-sm text-muted-foreground font-body">Vue d'ensemble de Nsango Magazine</p>
+  const statusColors: Record<string, string> = {
+    published: "bg-green-100 text-green-700",
+    draft: "bg-muted text-muted-foreground",
+    scheduled: "bg-blue-100 text-blue-700",
+    review: "bg-amber-100 text-amber-700",
+  };
+  const statusLabels: Record<string, string> = {
+    published: "Publié", draft: "Brouillon", scheduled: "Programmé", review: "En révision",
+  };
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Welcome */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-bold">
+            Bonjour, {profile?.display_name || "Admin"} 👋
+          </h1>
+          <p className="text-sm text-muted-foreground">Vue d'ensemble de Nsango Magazine</p>
+        </div>
+        <Link to="/admin/articles">
+          <Button className="bg-gold hover:bg-gold-dark text-primary text-sm gap-1.5 shadow-sm">
+            <FileText className="w-4 h-4" /> Nouvel article
+          </Button>
+        </Link>
       </div>
-      <Link to="/admin/articles">
-        <Button className="bg-gold hover:bg-gold-dark text-primary font-body text-sm gap-1">
-          <FileText className="w-4 h-4" /> Nouvel article
-        </Button>
-      </Link>
-    </div>
 
-    {/* Stats */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((s) => (
-        <Card key={s.label}>
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-muted-foreground"><s.icon className="w-5 h-5" /></span>
-              <span className={`text-xs font-semibold flex items-center gap-0.5 ${s.up ? "text-green-600" : "text-red-500"}`}>
-                {s.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {s.change}
-              </span>
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {stats.map((s) => (
+          <Card key={s.label} className="hover:shadow-card transition-shadow">
+            <CardContent className="p-4 md:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${s.color}`}>
+                  <s.icon className="w-4 h-4" />
+                </div>
+                <span className={`text-xs font-semibold flex items-center gap-0.5 ${s.up ? "text-green-600" : "text-destructive"}`}>
+                  {s.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  {s.change}
+                </span>
+              </div>
+              <p className="text-xl md:text-2xl font-bold font-display">{s.value}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        {/* Recent articles */}
+        <Card className="lg:col-span-2 hover:shadow-card transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-gold" />
+                <CardTitle className="text-base font-display">Articles récents</CardTitle>
+              </div>
+              <Link to="/admin/articles" className="text-xs text-gold hover:underline flex items-center gap-1">
+                Voir tout <ArrowUpRight className="w-3 h-3" />
+              </Link>
             </div>
-            <p className="text-2xl font-bold font-display">{s.value}</p>
-            <p className="text-xs text-muted-foreground font-body mt-1">{s.label}</p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              {recentArticles.length > 0 ? recentArticles.map((a) => (
+                <div key={a.id} className="flex items-center justify-between py-2.5 px-2 rounded-lg hover:bg-muted/50 transition-colors border-b border-border last:border-0">
+                  <div className="min-w-0 flex-1 mr-4">
+                    <p className="text-sm font-medium truncate">{a.title}</p>
+                    <p className="text-[11px] text-muted-foreground">{new Date(a.created_at).toLocaleDateString("fr-FR")}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    {a.views > 0 && (
+                      <span className="text-xs text-muted-foreground">{a.views.toLocaleString()} vues</span>
+                    )}
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${statusColors[a.status] || "bg-muted text-muted-foreground"}`}>
+                      {statusLabels[a.status] || a.status}
+                    </span>
+                  </div>
+                </div>
+              )) : (
+                <p className="text-sm text-muted-foreground text-center py-8">Aucun article. Créez votre premier article !</p>
+              )}
+            </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Recent articles */}
-      <Card className="lg:col-span-2">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-display">Articles récents</CardTitle>
-            <Link to="/admin/articles" className="text-xs text-gold hover:underline font-body flex items-center gap-1">
-              Voir tout <ArrowUpRight className="w-3 h-3" />
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {recentArticles.map((a) => (
-              <div key={a.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                <div className="min-w-0 flex-1 mr-4">
-                  <p className="text-sm font-medium truncate">{a.title}</p>
-                  <p className="text-xs text-muted-foreground font-body">{a.date}</p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  {a.views > 0 && (
-                    <span className="text-xs text-muted-foreground font-body">{a.views.toLocaleString()} vues</span>
-                  )}
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold font-body ${statusColors[a.status]}`}>
-                    {statusLabels[a.status]}
-                  </span>
-                </div>
-              </div>
+        {/* Quick actions */}
+        <Card className="hover:shadow-card transition-shadow">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-gold" />
+              <CardTitle className="text-base font-display">Actions rapides</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {[
+              { to: "/admin/articles", icon: "📝", label: "Créer un article" },
+              { to: "/admin/surveys", icon: "📊", label: "Lancer un sondage" },
+              { to: "/admin/advertising", icon: "📢", label: "Nouvelle campagne" },
+              { to: "/admin/magazine", icon: "📖", label: "Magazine mensuel" },
+              { to: "/admin/subscriptions", icon: "👑", label: "Gérer les abonnés" },
+              { to: "/admin/settings", icon: "⚙️", label: "Paramètres" },
+            ].map((action) => (
+              <Link key={action.to} to={action.to}>
+                <Button variant="outline" className="w-full justify-start text-sm gap-2 hover:bg-gold/5 hover:border-gold/30 transition-all">
+                  <span>{action.icon}</span> {action.label}
+                </Button>
+              </Link>
             ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick actions */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-display">Actions rapides</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Link to="/admin/articles"><Button variant="outline" className="w-full justify-start text-sm font-body">📝 Créer un article</Button></Link>
-          <Link to="/admin/surveys"><Button variant="outline" className="w-full justify-start text-sm font-body">📊 Lancer un sondage</Button></Link>
-          <Link to="/admin/advertising"><Button variant="outline" className="w-full justify-start text-sm font-body">📢 Nouvelle campagne</Button></Link>
-          <Link to="/admin/magazine"><Button variant="outline" className="w-full justify-start text-sm font-body">📖 Magazine mensuel</Button></Link>
-          <Link to="/admin/subscriptions"><Button variant="outline" className="w-full justify-start text-sm font-body">👑 Gérer les abonnés</Button></Link>
-          <Link to="/admin/settings"><Button variant="outline" className="w-full justify-start text-sm font-body">⚙️ Paramètres</Button></Link>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Dashboard;
