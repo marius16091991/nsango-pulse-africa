@@ -1,19 +1,11 @@
-import { useState } from "react";
-import { MessageSquare, CheckCircle, XCircle, Clock, Search, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CheckCircle, XCircle, Clock, Search, AlertTriangle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-
-interface Comment {
-  id: number;
-  author: string;
-  article: string;
-  content: string;
-  date: string;
-  status: string;
-}
+import { supabase } from "@/integrations/supabase/client";
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
   approved: { label: "Approuvé", color: "bg-green-100 text-green-700", icon: CheckCircle },
@@ -23,30 +15,38 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 };
 
 const CommentsManager = () => {
-  const [comments, setComments] = useState<Comment[]>([
-    { id: 1, author: "Amara Diallo", article: "Aliko Dangote : L'empire", content: "Excellent article, très inspirant ! Dangote est un modèle pour toute l'Afrique.", date: "2026-04-02 14:30", status: "approved" },
-    { id: 2, author: "Jean M.", article: "Fashion Week de Lagos", content: "J'adore la couverture de cet événement. Nsango est toujours au top !", date: "2026-04-02 12:15", status: "approved" },
-    { id: 3, author: "User123", article: "Les startups fintech", content: "Ce contenu est sponsorisé, non ? Vous devriez le mentionner clairement.", date: "2026-04-01 18:45", status: "pending" },
-    { id: 4, author: "SpamBot", article: "Portrait : Wangari Maathai", content: "Buy cheap watches at www.spam-link.com", date: "2026-04-01 03:22", status: "flagged" },
-    { id: 5, author: "Marie K.", article: "Burna Boy : talent émergent", content: "Burna Boy mérite cette reconnaissance. La musique africaine rayonne !", date: "2026-03-31 20:10", status: "approved" },
-    { id: 6, author: "Paul E.", article: "Interview : Ngozi Okonjo-Iweala", content: "Quand sera publiée la suite de cette interview ?", date: "2026-04-02 09:00", status: "pending" },
-  ]);
+  const [comments, setComments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  const updateStatus = (id: number, newStatus: string) => {
-    setComments(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
-    const labels: Record<string, string> = { approved: "Approuvé", rejected: "Rejeté" };
-    toast({ title: `Commentaire ${labels[newStatus] || newStatus}` });
+  const fetchComments = async () => {
+    const { data } = await supabase
+      .from("comments")
+      .select("*, articles(title)")
+      .order("created_at", { ascending: false });
+    setComments(data || []);
+    setLoading(false);
   };
 
-  const deleteComment = (id: number) => {
-    setComments(prev => prev.filter(c => c.id !== id));
+  useEffect(() => { fetchComments(); }, []);
+
+  const updateStatus = async (id: string, newStatus: string) => {
+    const { error } = await supabase.from("comments").update({ status: newStatus }).eq("id", id);
+    if (!error) {
+      toast({ title: `Commentaire ${newStatus === "approved" ? "approuvé" : "rejeté"}` });
+      fetchComments();
+    }
+  };
+
+  const deleteComment = async (id: string) => {
+    await supabase.from("comments").delete().eq("id", id);
     toast({ title: "Commentaire supprimé" });
+    fetchComments();
   };
 
   const filtered = comments.filter((c) => {
-    if (search && !c.content.toLowerCase().includes(search.toLowerCase()) && !c.author.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !c.content.toLowerCase().includes(search.toLowerCase()) && !c.author_name.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterStatus !== "all" && c.status !== filterStatus) return false;
     return true;
   });
@@ -55,10 +55,10 @@ const CommentsManager = () => {
   const flaggedCount = comments.filter(c => c.status === "flagged").length;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
+    <div className="p-4 md:p-6 lg:p-8 space-y-5 max-w-7xl mx-auto">
       <div>
         <h1 className="text-2xl font-display font-bold">Modération des commentaires</h1>
-        <p className="text-sm text-muted-foreground font-body">{pendingCount} en attente · {flaggedCount} signalé{flaggedCount > 1 ? "s" : ""}</p>
+        <p className="text-sm text-muted-foreground">{pendingCount} en attente · {flaggedCount} signalé{flaggedCount > 1 ? "s" : ""}</p>
       </div>
 
       <Card>
@@ -82,43 +82,49 @@ const CommentsManager = () => {
         </CardContent>
       </Card>
 
-      <div className="space-y-3">
-        {filtered.map((c) => {
-          const cfg = statusConfig[c.status];
-          const StatusIcon = cfg.icon;
-          return (
-            <Card key={c.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm">{c.author}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold font-body flex items-center gap-1 ${cfg.color}`}>
-                        <StatusIcon className="w-3 h-3" /> {cfg.label}
-                      </span>
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-gold" /></div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((c) => {
+            const cfg = statusConfig[c.status] || statusConfig.pending;
+            const StatusIcon = cfg.icon;
+            return (
+              <Card key={c.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-sm">{c.author_name}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1 ${cfg.color}`}>
+                          <StatusIcon className="w-3 h-3" /> {cfg.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        sur « {c.articles?.title || "Article"} » · {new Date(c.created_at).toLocaleString("fr-FR")}
+                      </p>
+                      <p className="text-sm">{c.content}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground font-body mb-2">sur « {c.article} » · {c.date}</p>
-                    <p className="text-sm font-body">{c.content}</p>
+                    <div className="flex gap-2 shrink-0">
+                      {c.status !== "approved" && (
+                        <Button size="sm" variant="outline" className="text-xs text-green-700 border-green-200 hover:bg-green-50 gap-1" onClick={() => updateStatus(c.id, "approved")}>
+                          <CheckCircle className="w-3 h-3" /> Approuver
+                        </Button>
+                      )}
+                      {c.status !== "rejected" && (
+                        <Button size="sm" variant="outline" className="text-xs text-destructive border-red-200 hover:bg-red-50 gap-1" onClick={() => updateStatus(c.id, "rejected")}>
+                          <XCircle className="w-3 h-3" /> Rejeter
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
-                    {c.status !== "approved" && (
-                      <Button size="sm" variant="outline" className="text-xs font-body text-green-700 border-green-200 hover:bg-green-50 gap-1" onClick={() => updateStatus(c.id, "approved")}>
-                        <CheckCircle className="w-3 h-3" /> Approuver
-                      </Button>
-                    )}
-                    {c.status !== "rejected" && (
-                      <Button size="sm" variant="outline" className="text-xs font-body text-destructive border-red-200 hover:bg-red-50 gap-1" onClick={() => updateStatus(c.id, "rejected")}>
-                        <XCircle className="w-3 h-3" /> Rejeter
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-        {filtered.length === 0 && <p className="text-center text-muted-foreground font-body py-8">Aucun commentaire trouvé</p>}
-      </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+          {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Aucun commentaire trouvé</p>}
+        </div>
+      )}
     </div>
   );
 };

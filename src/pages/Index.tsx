@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
@@ -5,6 +7,7 @@ import ArticleCard from "@/components/ArticleCard";
 import SectionTitle from "@/components/SectionTitle";
 import { Crown, Play, Headphones, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 import heroImg from "@/assets/hero-personality.jpg";
 import featuredImg from "@/assets/personality-featured.jpg";
@@ -13,7 +16,15 @@ import businessImg from "@/assets/business-leadership.jpg";
 import talentImg from "@/assets/talent-emergent.jpg";
 import magazineImg from "@/assets/magazine-cover.jpg";
 
+const fallbackImages = [heroImg, featuredImg, cultureImg, businessImg, talentImg];
+
 const Index = () => {
+  const [dbArticles, setDbArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from("articles").select("*").eq("status", "published").order("created_at", { ascending: false }).limit(20)
+      .then(({ data }) => setDbArticles(data || []));
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -88,6 +99,29 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Articles from database */}
+      {dbArticles.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <SectionTitle title="Derniers articles" subtitle="Publiés par la rédaction" gold />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dbArticles.slice(0, 6).map((a, i) => (
+              <Link key={a.id} to={`/article/${a.id}`}>
+                <ArticleCard
+                  image={a.cover_url || fallbackImages[i % fallbackImages.length]}
+                  category={a.category}
+                  title={a.title}
+                  excerpt={a.summary || undefined}
+                  author={a.author_name || undefined}
+                  date={new Date(a.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                  size={i === 0 ? "large" : "medium"}
+                  premium={a.premium}
+                />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Tendances */}
       <section className="bg-secondary py-12">
