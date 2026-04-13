@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_campaigns: {
+        Row: {
+          advertiser: string
+          budget: number
+          clicks: number
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          format: string
+          id: string
+          impressions: number
+          name: string
+          spent: number
+          start_date: string | null
+          status: string
+        }
+        Insert: {
+          advertiser?: string
+          budget?: number
+          clicks?: number
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          format?: string
+          id?: string
+          impressions?: number
+          name: string
+          spent?: number
+          start_date?: string | null
+          status?: string
+        }
+        Update: {
+          advertiser?: string
+          budget?: number
+          clicks?: number
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          format?: string
+          id?: string
+          impressions?: number
+          name?: string
+          spent?: number
+          start_date?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           author_name: string | null
@@ -62,6 +110,74 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          article_id: string
+          author_email: string | null
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          status: string
+        }
+        Insert: {
+          article_id: string
+          author_email?: string | null
+          author_name: string
+          content: string
+          created_at?: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          article_id?: string
+          author_email?: string | null
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          size: string | null
+          type: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          size?: string | null
+          type?: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          size?: string | null
+          type?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -88,6 +204,36 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          plan: string
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          plan?: string
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          plan?: string
+          started_at?: string
+          status?: string
           user_id?: string
         }
         Relationships: []
