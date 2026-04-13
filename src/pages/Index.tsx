@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
@@ -5,6 +7,7 @@ import ArticleCard from "@/components/ArticleCard";
 import SectionTitle from "@/components/SectionTitle";
 import { Crown, Play, Headphones, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 import heroImg from "@/assets/hero-personality.jpg";
 import featuredImg from "@/assets/personality-featured.jpg";
@@ -13,7 +16,15 @@ import businessImg from "@/assets/business-leadership.jpg";
 import talentImg from "@/assets/talent-emergent.jpg";
 import magazineImg from "@/assets/magazine-cover.jpg";
 
+const fallbackImages = [heroImg, featuredImg, cultureImg, businessImg, talentImg];
+
 const Index = () => {
+  const [dbArticles, setDbArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from("articles").select("*").eq("status", "published").order("created_at", { ascending: false }).limit(20)
+      .then(({ data }) => setDbArticles(data || []));
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       <Header />
