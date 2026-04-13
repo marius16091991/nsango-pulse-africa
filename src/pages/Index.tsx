@@ -100,6 +100,29 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Articles from database */}
+      {dbArticles.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <SectionTitle title="Derniers articles" subtitle="Publiés par la rédaction" gold />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dbArticles.slice(0, 6).map((a, i) => (
+              <Link key={a.id} to={`/article/${a.id}`}>
+                <ArticleCard
+                  image={a.cover_url || fallbackImages[i % fallbackImages.length]}
+                  category={a.category}
+                  title={a.title}
+                  excerpt={a.summary || undefined}
+                  author={a.author_name || undefined}
+                  date={new Date(a.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                  size={i === 0 ? "large" : "medium"}
+                  premium={a.premium}
+                />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Tendances */}
       <section className="bg-secondary py-12">
         <div className="container mx-auto px-4">
