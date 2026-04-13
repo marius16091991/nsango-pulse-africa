@@ -12,6 +12,7 @@ import Interviews from "./pages/Interviews.tsx";
 import Videos from "./pages/Videos.tsx";
 import Magazine from "./pages/Magazine.tsx";
 import Auth from "./pages/Auth.tsx";
+import ArticlePage from "./pages/ArticlePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
