@@ -63,7 +63,7 @@ const Surveys = () => {
   };
 
   const parseOptions = (opts: Json): SurveyOption[] => {
-    if (Array.isArray(opts)) return opts as SurveyOption[];
+    if (Array.isArray(opts)) return opts as unknown as SurveyOption[];
     return [];
   };
 
