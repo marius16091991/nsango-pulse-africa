@@ -135,7 +135,26 @@ const ArticlesManager = () => {
               </div>
               <div><Label className="text-sm">Résumé</Label><Textarea placeholder="Résumé court..." className="mt-1" rows={3} value={formSummary} onChange={e => setFormSummary(e.target.value)} /></div>
               <div><Label className="text-sm">Contenu</Label><Textarea placeholder="Corps de l'article..." className="mt-1" rows={8} value={formContent} onChange={e => setFormContent(e.target.value)} /></div>
-              <div><Label className="text-sm">Image de couverture (URL)</Label><Input placeholder="https://..." className="mt-1" value={formCover} onChange={e => setFormCover(e.target.value)} /></div>
+              <div>
+                <Label className="text-sm">Image de couverture</Label>
+                {formCover ? (
+                  <div className="mt-1 flex items-center gap-3">
+                    <img src={formCover} alt="" className="w-16 h-16 rounded-md object-cover" />
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{formCover.split('/').pop()}</p>
+                      <Button variant="ghost" size="sm" className="text-xs h-6 px-2 mt-1" onClick={() => setFormCover("")}>Changer</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <FileUpload
+                    compact
+                    className="mt-1"
+                    onUploadComplete={(url) => setFormCover(url)}
+                    accept="image/*"
+                    maxSizeMB={10}
+                  />
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 <Switch id="premium" checked={formPremium} onCheckedChange={setFormPremium} />
                 <Label htmlFor="premium" className="text-sm">Contenu premium</Label>
