@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Upload, Search, Grid, List, Image, Video, Music, FileText, Trash2, Eye,
-  Download, MoreHorizontal, RefreshCw, Loader2, CheckSquare, Square, Info,
-  Copy, ExternalLink, SlidersHorizontal, X, Calendar, HardDrive
+  MoreHorizontal, RefreshCw, Loader2, CheckSquare, Square, Copy, ExternalLink,
+  X, HardDrive, Newspaper, Tv, Sparkles, Filter
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
@@ -15,15 +16,18 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import FileUpload from "@/components/FileUpload";
+import { getYouTubeThumbnail } from "@/components/MediaUpload";
 import { cn } from "@/lib/utils";
 
-interface Media {
+interface UnifiedMedia {
   id: string;
   name: string;
-  type: string;
+  type: "image" | "video" | "audio" | "document";
   size: string | null;
   url: string;
-  uploaded_by: string | null;
+  thumbnail?: string;
+  source: "upload" | "article" | "video"; // origin
+  meta?: string; // e.g. article title or category
   created_at: string;
 }
 
@@ -36,9 +40,8 @@ const typeColors: Record<string, string> = {
 };
 
 const formatDate = (d: string) => new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-const formatSize = (s: string | null) => s || "—";
 
-const getMediaType = (mimeOrName: string): string => {
+const getMediaType = (mimeOrName: string): UnifiedMedia["type"] => {
   const lower = mimeOrName.toLowerCase();
   if (lower.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(lower)) return "image";
   if (lower.startsWith("video/") || /\.(mp4|mov|avi|webm)$/i.test(lower)) return "video";
@@ -48,67 +51,111 @@ const getMediaType = (mimeOrName: string): string => {
 
 const MediasManager = () => {
   const { user } = useAuth();
-  const [medias, setMedias] = useState<Media[]>([]);
+  const [uploads, setUploads] = useState<any[]>([]);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [sortBy, setSortBy] = useState<"date" | "name" | "size">("date");
+  const [sourceTab, setSourceTab] = useState<"all" | "articles" | "videos" | "uploads">("all");
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [previewMedia, setPreviewMedia] = useState<Media | null>(null);
+  const [previewMedia, setPreviewMedia] = useState<UnifiedMedia | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [deleting, setDeleting] = useState(false);
 
-  const fetchMedias = async () => {
+  const fetchAll = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("media").select("*").order("created_at", { ascending: false });
-    if (!error && data) setMedias(data);
+    const [up, art, vid] = await Promise.all([
+      supabase.from("media").select("*").order("created_at", { ascending: false }),
+      supabase.from("articles").select("id, title, category, cover_url, created_at").not("cover_url", "is", null).neq("cover_url", "").order("created_at", { ascending: false }),
+      supabase.from("videos").select("id, title, category, source, url, thumbnail_url, created_at").order("created_at", { ascending: false }),
+    ]);
+    setUploads(up.data || []);
+    setArticles(art.data || []);
+    setVideos(vid.data || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchMedias(); }, []);
+  useEffect(() => {
+    fetchAll();
+    // Realtime: auto-update when articles, videos or media change
+    const channel = supabase
+      .channel("medias-aggregator")
+      .on("postgres_changes", { event: "*", schema: "public", table: "articles" }, fetchAll)
+      .on("postgres_changes", { event: "*", schema: "public", table: "videos" }, fetchAll)
+      .on("postgres_changes", { event: "*", schema: "public", table: "media" }, fetchAll)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const allMedia: UnifiedMedia[] = useMemo(() => {
+    const list: UnifiedMedia[] = [];
+    uploads.forEach((m) => list.push({
+      id: `upload-${m.id}`,
+      name: m.name, type: (m.type as any) || "image", size: m.size, url: m.url,
+      source: "upload", created_at: m.created_at,
+    }));
+    articles.forEach((a) => list.push({
+      id: `article-${a.id}`,
+      name: a.title, type: "image", size: null, url: a.cover_url,
+      source: "article", meta: a.category, created_at: a.created_at,
+    }));
+    videos.forEach((v) => {
+      const thumb = v.thumbnail_url || (v.source === "youtube" ? getYouTubeThumbnail(v.url) : "");
+      list.push({
+        id: `video-${v.id}`,
+        name: v.title, type: "video", size: null, url: v.url, thumbnail: thumb,
+        source: "video", meta: v.category, created_at: v.created_at,
+      });
+    });
+    return list;
+  }, [uploads, articles, videos]);
+
+  const filtered = useMemo(() => {
+    return allMedia
+      .filter((m) => {
+        if (sourceTab === "uploads" && m.source !== "upload") return false;
+        if (sourceTab === "articles" && m.source !== "article") return false;
+        if (sourceTab === "videos" && m.source !== "video") return false;
+        if (filterType !== "all" && m.type !== filterType) return false;
+        if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
+        return true;
+      })
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [allMedia, sourceTab, filterType, search]);
+
+  const stats = useMemo(() => ({
+    total: allMedia.length,
+    articles: articles.length,
+    videos: videos.length,
+    uploads: uploads.length,
+  }), [allMedia, articles, videos, uploads]);
 
   const handleUploadComplete = async (url: string, file: { name: string; size: number; type: string }) => {
     const sizeStr = file.size < 1024 * 1024
       ? `${(file.size / 1024).toFixed(0)} KB`
       : `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
-
     const { error } = await supabase.from("media").insert({
-      name: file.name,
-      type: getMediaType(file.type || file.name),
-      size: sizeStr,
-      url,
-      uploaded_by: user?.id || null,
+      name: file.name, type: getMediaType(file.type || file.name),
+      size: sizeStr, url, uploaded_by: user?.id || null,
     });
-
-    if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    } else {
-      fetchMedias();
-      setUploadOpen(false);
-    }
+    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    else { setUploadOpen(false); }
   };
 
-  const handleDelete = async (id: string) => {
-    const m = medias.find((x) => x.id === id);
-    const { error } = await supabase.from("media").delete().eq("id", id);
-    if (!error) {
-      setMedias((prev) => prev.filter((x) => x.id !== id));
-      setSelectedIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
-      toast({ title: "Supprimé", description: m?.name });
+  const handleDelete = async (m: UnifiedMedia) => {
+    if (m.source !== "upload") {
+      toast({ title: "Impossible", description: "Ce média provient d'un article ou d'une vidéo. Modifiez l'élément source pour le retirer.", variant: "destructive" });
+      return;
     }
+    const realId = m.id.replace("upload-", "");
+    const { error } = await supabase.from("media").delete().eq("id", realId);
+    if (!error) toast({ title: "Supprimé" });
   };
 
-  const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) return;
-    setDeleting(true);
-    const { error } = await supabase.from("media").delete().in("id", Array.from(selectedIds));
-    if (!error) {
-      setMedias((prev) => prev.filter((x) => !selectedIds.has(x.id)));
-      toast({ title: `${selectedIds.size} fichier(s) supprimé(s)` });
-      setSelectedIds(new Set());
-    }
-    setDeleting(false);
+  const copyUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
+    toast({ title: "URL copiée" });
   };
 
   const toggleSelect = (id: string) => {
@@ -119,241 +166,146 @@ const MediasManager = () => {
     });
   };
 
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filtered.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filtered.map((m) => m.id)));
-    }
-  };
-
-  const copyUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast({ title: "URL copiée" });
-  };
-
-  const filtered = useMemo(() => {
-    let result = medias.filter((m) => {
-      if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
-      if (filterType !== "all" && m.type !== filterType) return false;
-      return true;
-    });
-    if (sortBy === "name") result.sort((a, b) => a.name.localeCompare(b.name));
-    if (sortBy === "date") result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    return result;
-  }, [medias, search, filterType, sortBy]);
-
-  const stats = useMemo(() => ({
-    total: medias.length,
-    images: medias.filter((m) => m.type === "image").length,
-    videos: medias.filter((m) => m.type === "video").length,
-    audio: medias.filter((m) => m.type === "audio").length,
-    docs: medias.filter((m) => m.type === "document").length,
-  }), [medias]);
-
   return (
-    <div className="p-4 lg:p-8 space-y-5">
-      {/* Header */}
+    <div className="p-4 lg:p-8 space-y-5 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold">Bibliothèque médias</h1>
+          <h1 className="text-2xl font-display font-bold flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-gold" /> Bibliothèque médias
+          </h1>
           <p className="text-sm text-muted-foreground font-body mt-0.5">
-            Gérez tous vos fichiers multimédias
+            Tous les visuels de la plateforme — articles, vidéos et fichiers uploadés. Mise à jour en temps réel.
           </p>
         </div>
-        <Button
-          className="bg-gold hover:bg-gold-dark text-primary font-body text-sm gap-1.5 shadow-sm"
-          onClick={() => setUploadOpen(true)}
-        >
-          <Upload className="w-4 h-4" /> Uploader un fichier
+        <Button className="bg-gold hover:bg-gold-dark text-primary text-sm gap-1.5" onClick={() => setUploadOpen(true)}>
+          <Upload className="w-4 h-4" /> Importer un fichier
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total", value: stats.total, icon: HardDrive, color: "text-foreground" },
-          { label: "Images", value: stats.images, icon: Image, color: "text-blue-500" },
-          { label: "Vidéos", value: stats.videos, icon: Video, color: "text-red-500" },
-          { label: "Audio", value: stats.audio, icon: Music, color: "text-purple-500" },
-          { label: "Documents", value: stats.docs, icon: FileText, color: "text-amber-500" },
+          { label: "Total médias", value: stats.total, icon: HardDrive, color: "text-foreground" },
+          { label: "Articles", value: stats.articles, icon: Newspaper, color: "text-blue-500" },
+          { label: "Vidéos / TV", value: stats.videos, icon: Tv, color: "text-red-500" },
+          { label: "Uploads", value: stats.uploads, icon: Upload, color: "text-gold" },
         ].map((s) => (
-          <Card key={s.label} className="border-border/50">
-            <CardContent className="p-3 flex items-center gap-3">
-              <s.icon className={cn("w-5 h-5", s.color)} />
+          <Card key={s.label} className="border-border/50 hover:shadow-card transition-shadow">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                <s.icon className={cn("w-5 h-5", s.color)} />
+              </div>
               <div>
-                <p className="text-lg font-bold font-display leading-none">{s.value}</p>
-                <p className="text-[11px] text-muted-foreground font-body">{s.label}</p>
+                <p className="text-xl font-bold font-display leading-none">{s.value}</p>
+                <p className="text-[11px] text-muted-foreground font-body mt-1">{s.label}</p>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
+      {/* Source tabs */}
+      <Tabs value={sourceTab} onValueChange={(v) => setSourceTab(v as any)}>
+        <TabsList className="grid grid-cols-4 w-full sm:w-auto sm:inline-flex">
+          <TabsTrigger value="all" className="text-xs">Tout</TabsTrigger>
+          <TabsTrigger value="articles" className="text-xs gap-1"><Newspaper className="w-3 h-3" /> Articles</TabsTrigger>
+          <TabsTrigger value="videos" className="text-xs gap-1"><Tv className="w-3 h-3" /> Vidéos</TabsTrigger>
+          <TabsTrigger value="uploads" className="text-xs gap-1"><Upload className="w-3 h-3" /> Uploads</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {/* Toolbar */}
       <Card className="border-border/50">
-        <CardContent className="p-3">
-          <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher un fichier..."
-                className="pl-9 h-9 text-sm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && (
-                <button className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setSearch("")}>
-                  <X className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              )}
-            </div>
-            <div className="flex gap-2 items-center flex-wrap">
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-32 h-9 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous types</SelectItem>
-                  <SelectItem value="image">Images</SelectItem>
-                  <SelectItem value="video">Vidéos</SelectItem>
-                  <SelectItem value="audio">Audio</SelectItem>
-                  <SelectItem value="document">Documents</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-                <SelectTrigger className="w-28 h-9 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">Récent</SelectItem>
-                  <SelectItem value="name">Nom A-Z</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex gap-0.5 border rounded-md p-0.5">
-                <Button variant={view === "grid" ? "default" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setView("grid")}>
-                  <Grid className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant={view === "list" ? "default" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setView("list")}>
-                  <List className="w-3.5 h-3.5" />
-                </Button>
-              </div>
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={fetchMedias}>
-                <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-              </Button>
-            </div>
+        <CardContent className="p-3 flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Rechercher..." className="pl-9 h-9 text-sm" value={search} onChange={(e) => setSearch(e.target.value)} />
+            {search && (
+              <button className="absolute right-2 top-1/2 -translate-y-1/2" onClick={() => setSearch("")}>
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            )}
           </div>
-
-          {/* Bulk actions */}
-          {selectedIds.size > 0 && (
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/50">
-              <span className="text-xs font-body text-muted-foreground">
-                {selectedIds.size} sélectionné(s)
-              </span>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="text-xs h-7 gap-1"
-                disabled={deleting}
-                onClick={handleBulkDelete}
-              >
-                {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                Supprimer
+          <div className="flex gap-2 items-center">
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-32 h-9 text-sm"><Filter className="w-3 h-3 mr-1" /><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous types</SelectItem>
+                <SelectItem value="image">Images</SelectItem>
+                <SelectItem value="video">Vidéos</SelectItem>
+                <SelectItem value="audio">Audio</SelectItem>
+                <SelectItem value="document">Docs</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex gap-0.5 border rounded-md p-0.5">
+              <Button variant={view === "grid" ? "default" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setView("grid")}>
+                <Grid className="w-3.5 h-3.5" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setSelectedIds(new Set())}>
-                Désélectionner
+              <Button variant={view === "list" ? "default" : "ghost"} size="icon" className="h-7 w-7" onClick={() => setView("list")}>
+                <List className="w-3.5 h-3.5" />
               </Button>
             </div>
-          )}
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={fetchAll}>
+              <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-6 h-6 animate-spin text-gold" />
-        </div>
+        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-gold" /></div>
       ) : filtered.length === 0 ? (
         <Card className="border-dashed border-2">
           <CardContent className="p-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <Image className="w-7 h-7 text-muted-foreground" />
-            </div>
-            <h3 className="font-display font-semibold text-lg">Aucun fichier</h3>
+            <Image className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <h3 className="font-display font-semibold">Aucun média</h3>
             <p className="text-sm text-muted-foreground font-body mt-1">
-              {search ? "Aucun résultat pour votre recherche" : "Commencez par uploader vos premiers fichiers"}
+              {search ? "Aucun résultat pour votre recherche" : "La bibliothèque se remplira automatiquement quand vous publierez articles et vidéos"}
             </p>
-            {!search && (
-              <Button className="mt-4 bg-gold hover:bg-gold-dark text-primary" onClick={() => setUploadOpen(true)}>
-                <Upload className="w-4 h-4 mr-1.5" /> Uploader
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : view === "grid" ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {filtered.map((m) => {
             const Icon = typeIcons[m.type] || FileText;
-            const isSelected = selectedIds.has(m.id);
+            const display = m.thumbnail || (m.type === "image" ? m.url : null);
             return (
-              <Card
-                key={m.id}
-                className={cn(
-                  "group relative hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden",
-                  isSelected && "ring-2 ring-gold"
-                )}
-                onClick={() => toggleSelect(m.id)}
-              >
+              <Card key={m.id} className="group relative hover:shadow-md transition-all overflow-hidden cursor-pointer" onClick={() => setPreviewMedia(m)}>
                 <CardContent className="p-0">
                   <div className="aspect-square bg-muted/50 flex items-center justify-center relative overflow-hidden">
-                    {m.type === "image" && m.url !== "#" ? (
-                      <img src={m.url} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
+                    {display ? (
+                      <img src={display} alt={m.name} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
                       <div className={cn("w-14 h-14 rounded-xl flex items-center justify-center", typeColors[m.type])}>
                         <Icon className="w-7 h-7" />
                       </div>
                     )}
-
-                    {/* Checkbox overlay */}
-                    <div className={cn(
-                      "absolute top-2 left-2 transition-opacity",
-                      isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                    )}>
-                      {isSelected
-                        ? <CheckSquare className="w-5 h-5 text-gold drop-shadow" />
-                        : <Square className="w-5 h-5 text-primary-foreground drop-shadow" />
-                      }
+                    {/* Source badge */}
+                    <div className="absolute top-1.5 left-1.5">
+                      {m.source === "article" && <Badge className="bg-blue-500/90 hover:bg-blue-500/90 text-white text-[9px] gap-1 px-1.5 h-4"><Newspaper className="w-2.5 h-2.5" /> Article</Badge>}
+                      {m.source === "video" && <Badge className="bg-red-500/90 hover:bg-red-500/90 text-white text-[9px] gap-1 px-1.5 h-4"><Tv className="w-2.5 h-2.5" /> Vidéo</Badge>}
+                      {m.source === "upload" && <Badge className="bg-gold/90 hover:bg-gold/90 text-primary text-[9px] gap-1 px-1.5 h-4"><Upload className="w-2.5 h-2.5" /> Upload</Badge>}
                     </div>
-
-                    {/* Actions overlay */}
                     <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-8 w-8 rounded-lg"
-                        onClick={(e) => { e.stopPropagation(); setPreviewMedia(m); }}
-                      >
+                      <Button size="icon" variant="secondary" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setPreviewMedia(m); }}>
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-8 w-8 rounded-lg"
-                        onClick={(e) => { e.stopPropagation(); copyUrl(m.url); }}
-                      >
+                      <Button size="icon" variant="secondary" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); copyUrl(m.url); }}>
                         <Copy className="w-4 h-4" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="h-8 w-8 rounded-lg"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(m.id); }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {m.source === "upload" && (
+                        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDelete(m); }}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <div className="p-2.5">
-                    <p className="text-xs font-medium truncate">{m.name}</p>
+                    <p className="text-xs font-medium truncate" title={m.name}>{m.name}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-body capitalize">{m.type}</Badge>
-                      <span className="text-[10px] text-muted-foreground font-body">{formatSize(m.size)}</span>
+                      {m.meta && <span className="text-[10px] text-muted-foreground font-body truncate">{m.meta}</span>}
                     </div>
                   </div>
                 </CardContent>
@@ -362,22 +314,14 @@ const MediasManager = () => {
           })}
         </div>
       ) : (
-        <Card className="border-border/50 overflow-hidden">
+        <Card className="overflow-hidden">
           <CardContent className="p-0">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-muted/30 text-left text-muted-foreground font-body text-xs">
-                  <th className="p-3 w-10">
-                    <button onClick={toggleSelectAll}>
-                      {selectedIds.size === filtered.length && filtered.length > 0
-                        ? <CheckSquare className="w-4 h-4 text-gold" />
-                        : <Square className="w-4 h-4" />
-                      }
-                    </button>
-                  </th>
+                <tr className="border-b bg-muted/30 text-left text-muted-foreground text-xs">
                   <th className="p-3">Fichier</th>
-                  <th className="p-3 w-24">Type</th>
-                  <th className="p-3 w-24 hidden md:table-cell">Taille</th>
+                  <th className="p-3 w-24">Source</th>
+                  <th className="p-3 w-20">Type</th>
                   <th className="p-3 w-32 hidden md:table-cell">Date</th>
                   <th className="p-3 w-16"></th>
                 </tr>
@@ -385,60 +329,32 @@ const MediasManager = () => {
               <tbody>
                 {filtered.map((m) => {
                   const Icon = typeIcons[m.type] || FileText;
-                  const isSelected = selectedIds.has(m.id);
+                  const display = m.thumbnail || (m.type === "image" ? m.url : null);
                   return (
-                    <tr
-                      key={m.id}
-                      className={cn(
-                        "border-b border-border/50 hover:bg-muted/20 transition-colors",
-                        isSelected && "bg-gold/5"
-                      )}
-                    >
-                      <td className="p-3">
-                        <button onClick={() => toggleSelect(m.id)}>
-                          {isSelected ? <CheckSquare className="w-4 h-4 text-gold" /> : <Square className="w-4 h-4 text-muted-foreground" />}
-                        </button>
-                      </td>
+                    <tr key={m.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                       <td className="p-3">
                         <div className="flex items-center gap-3">
-                          {m.type === "image" && m.url !== "#" ? (
-                            <img src={m.url} alt="" className="w-9 h-9 rounded-md object-cover" loading="lazy" />
+                          {display ? (
+                            <img src={display} alt="" className="w-9 h-9 rounded-md object-cover" loading="lazy" />
                           ) : (
                             <div className={cn("w-9 h-9 rounded-md flex items-center justify-center", typeColors[m.type])}>
                               <Icon className="w-4 h-4" />
                             </div>
                           )}
-                          <span className="font-medium text-sm truncate max-w-[200px]">{m.name}</span>
+                          <span className="font-medium text-sm truncate max-w-[280px]">{m.name}</span>
                         </div>
                       </td>
-                      <td className="p-3">
-                        <Badge variant="outline" className="text-[10px] capitalize font-body">{m.type}</Badge>
-                      </td>
-                      <td className="p-3 hidden md:table-cell text-muted-foreground font-body text-xs">{formatSize(m.size)}</td>
-                      <td className="p-3 hidden md:table-cell text-muted-foreground font-body text-xs">{formatDate(m.created_at)}</td>
+                      <td className="p-3 capitalize text-xs text-muted-foreground">{m.source}</td>
+                      <td className="p-3"><Badge variant="outline" className="text-[10px] capitalize">{m.type}</Badge></td>
+                      <td className="p-3 hidden md:table-cell text-muted-foreground text-xs">{formatDate(m.created_at)}</td>
                       <td className="p-3">
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
+                          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setPreviewMedia(m)}>
-                              <Eye className="w-4 h-4 mr-2" /> Aperçu
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => copyUrl(m.url)}>
-                              <Copy className="w-4 h-4 mr-2" /> Copier l'URL
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <a href={m.url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="w-4 h-4 mr-2" /> Ouvrir
-                              </a>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(m.id)}>
-                              <Trash2 className="w-4 h-4 mr-2" /> Supprimer
-                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setPreviewMedia(m)}><Eye className="w-4 h-4 mr-2" /> Aperçu</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => copyUrl(m.url)}><Copy className="w-4 h-4 mr-2" /> Copier l'URL</DropdownMenuItem>
+                            <DropdownMenuItem asChild><a href={m.url} target="_blank" rel="noreferrer"><ExternalLink className="w-4 h-4 mr-2" /> Ouvrir</a></DropdownMenuItem>
+                            {m.source === "upload" && <><DropdownMenuSeparator /><DropdownMenuItem className="text-destructive" onClick={() => handleDelete(m)}><Trash2 className="w-4 h-4 mr-2" /> Supprimer</DropdownMenuItem></>}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
@@ -454,74 +370,47 @@ const MediasManager = () => {
       {/* Upload Dialog */}
       <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-display">Uploader un fichier</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle className="font-display">Importer un fichier</DialogTitle></DialogHeader>
           <FileUpload onUploadComplete={handleUploadComplete} className="mt-2" />
-          <p className="text-[11px] text-muted-foreground font-body text-center mt-1">
-            Formats acceptés : JPG, PNG, GIF, WebP, MP4, MP3, PDF, DOC · Max 50 MB
-          </p>
+          <p className="text-[11px] text-muted-foreground font-body text-center">JPG, PNG, MP4, MP3, PDF — Max 50 MB</p>
         </DialogContent>
       </Dialog>
 
       {/* Preview Dialog */}
       <Dialog open={!!previewMedia} onOpenChange={() => setPreviewMedia(null)}>
         <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="font-display truncate pr-8">{previewMedia?.name}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle className="font-display truncate pr-8">{previewMedia?.name}</DialogTitle></DialogHeader>
           {previewMedia && (
             <div className="space-y-4">
               <div className="rounded-lg overflow-hidden bg-muted/30 flex items-center justify-center min-h-[200px]">
                 {previewMedia.type === "image" ? (
                   <img src={previewMedia.url} alt={previewMedia.name} className="max-w-full max-h-[60vh] object-contain" />
-                ) : previewMedia.type === "video" ? (
+                ) : previewMedia.type === "video" && previewMedia.source !== "video" ? (
                   <video src={previewMedia.url} controls className="max-w-full max-h-[60vh]" />
-                ) : previewMedia.type === "audio" ? (
-                  <div className="p-8 w-full">
-                    <audio src={previewMedia.url} controls className="w-full" />
-                  </div>
+                ) : previewMedia.thumbnail ? (
+                  <img src={previewMedia.thumbnail} alt="" className="max-w-full max-h-[60vh] object-contain" />
                 ) : (
-                  <div className="p-8 text-center">
-                    <FileText className="w-16 h-16 text-muted-foreground mx-auto" />
-                    <p className="text-sm text-muted-foreground mt-3 font-body">Aperçu non disponible</p>
-                  </div>
+                  <div className="p-8 text-center"><FileText className="w-16 h-16 text-muted-foreground mx-auto" /></div>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground font-body">Type</p>
-                  <p className="font-medium capitalize">{previewMedia.type}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground font-body">Taille</p>
-                  <p className="font-medium">{formatSize(previewMedia.size)}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground font-body">Date d'ajout</p>
-                  <p className="font-medium">{formatDate(previewMedia.created_at)}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground font-body">URL</p>
-                  <button onClick={() => copyUrl(previewMedia.url)} className="text-gold text-xs hover:underline flex items-center gap-1">
-                    <Copy className="w-3 h-3" /> Copier l'URL
-                  </button>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="capitalize">{previewMedia.source}</Badge>
+                <Badge variant="outline" className="capitalize">{previewMedia.type}</Badge>
+                {previewMedia.meta && <Badge variant="outline">{previewMedia.meta}</Badge>}
+                <Badge variant="outline">{formatDate(previewMedia.created_at)}</Badge>
               </div>
               <div className="flex gap-2 pt-2 border-t">
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs" asChild>
-                  <a href={previewMedia.url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-3.5 h-3.5" /> Ouvrir
-                  </a>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => copyUrl(previewMedia.url)}>
+                  <Copy className="w-3.5 h-3.5" /> Copier l'URL
                 </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="gap-1.5 text-xs ml-auto"
-                  onClick={() => { handleDelete(previewMedia.id); setPreviewMedia(null); }}
-                >
-                  <Trash2 className="w-3.5 h-3.5" /> Supprimer
+                <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                  <a href={previewMedia.url} target="_blank" rel="noreferrer"><ExternalLink className="w-3.5 h-3.5" /> Ouvrir</a>
                 </Button>
+                {previewMedia.source === "upload" && (
+                  <Button variant="destructive" size="sm" className="gap-1.5 ml-auto" onClick={() => { handleDelete(previewMedia); setPreviewMedia(null); }}>
+                    <Trash2 className="w-3.5 h-3.5" /> Supprimer
+                  </Button>
+                )}
               </div>
             </div>
           )}

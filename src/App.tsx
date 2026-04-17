@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
 import ArticlesManager from "./pages/admin/ArticlesManager.tsx";
+import VideosManager from "./pages/admin/VideosManager.tsx";
 import MediasManager from "./pages/admin/MediasManager.tsx";
 import Publications from "./pages/admin/Publications.tsx";
 import MagazineManager from "./pages/admin/MagazineManager.tsx";
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="articles" element={<ArticlesManager />} />
+              <Route path="videos" element={<VideosManager />} />
               <Route path="medias" element={<MediasManager />} />
               <Route path="publications" element={<Publications />} />
               <Route path="magazine" element={<MagazineManager />} />
