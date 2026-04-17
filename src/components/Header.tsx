@@ -1,23 +1,51 @@
 import { useState } from "react";
-import { Search, Menu, X, Crown, User, LogOut } from "lucide-react";
+import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
-const navItems = [
-  { label: "Accueil", href: "/" },
-  { label: "Portraits", href: "/portraits" },
-  { label: "Business", href: "/business" },
-  { label: "Culture", href: "/culture" },
-  { label: "Interviews", href: "/interviews" },
-  { label: "Vidéos", href: "/videos" },
-  { label: "Magazine", href: "/magazine" },
+// Graduated UX: Discover → Inspire → Live → Watch → Read
+const navGroups = [
+  {
+    label: "Découvrir",
+    icon: Compass,
+    items: [
+      { label: "Accueil", href: "/", desc: "Le meilleur de Nsango" },
+      { label: "Portraits", href: "/portraits", desc: "Visages qui inspirent" },
+    ],
+  },
+  {
+    label: "Inspirer",
+    icon: Sparkles,
+    items: [
+      { label: "Business", href: "/business", desc: "Leaders & innovation" },
+      { label: "Interviews", href: "/interviews", desc: "Voix d'exception" },
+    ],
+  },
+  {
+    label: "Vivre",
+    icon: Newspaper,
+    items: [
+      { label: "Culture", href: "/culture", desc: "Art, mode, lifestyle" },
+    ],
+  },
+];
+
+const flatItems = [
+  { label: "Nsango TV", href: "/videos", icon: Tv, highlight: true },
+  { label: "Magazine", href: "/magazine", icon: Newspaper },
 ];
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const { user, profile, signOut } = useAuth();
+  const location = useLocation();
+
+  const isActive = (href: string) =>
+    href === "/" ? location.pathname === "/" : location.pathname.startsWith(href);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -27,12 +55,12 @@ const Header = () => {
         </p>
       </div>
 
-      <div className="container mx-auto px-4 flex items-center justify-between h-16 lg:h-20">
+      <div className="container mx-auto px-4 flex items-center justify-between h-16 lg:h-20 gap-4">
         <button className="lg:hidden p-2" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
             <span className="text-gold">N</span>sango
           </h1>
@@ -41,15 +69,57 @@ const Header = () => {
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => (
-            <Link key={item.label} to={item.href} className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-gold transition-colors tracking-wide uppercase font-body">
+        {/* Desktop nav with grouped dropdowns */}
+        <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center" onMouseLeave={() => setOpenGroup(null)}>
+          {navGroups.map((group) => (
+            <div key={group.label} className="relative" onMouseEnter={() => setOpenGroup(group.label)}>
+              <button className={cn(
+                "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
+                openGroup === group.label ? "text-gold" : "text-foreground/80 hover:text-gold"
+              )}>
+                <group.icon className="w-3.5 h-3.5" />
+                {group.label}
+                <ChevronDown className="w-3 h-3 opacity-60" />
+              </button>
+              {openGroup === group.label && (
+                <div className="absolute top-full left-0 pt-1 animate-fade-in">
+                  <div className="bg-background border border-border rounded-lg shadow-elegant min-w-[220px] p-2">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => setOpenGroup(null)}
+                        className={cn(
+                          "block px-3 py-2 rounded-md text-sm transition-colors",
+                          isActive(item.href) ? "bg-gold/10 text-gold" : "hover:bg-secondary"
+                        )}
+                      >
+                        <p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>
+                        <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.desc}</p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+          {flatItems.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
+                item.highlight && "text-gold",
+                isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
+              )}
+            >
+              <item.icon className="w-3.5 h-3.5" />
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-foreground/70 hover:text-gold transition-colors" aria-label="Rechercher">
             <Search className="w-5 h-5" />
           </button>
@@ -88,13 +158,40 @@ const Header = () => {
       )}
 
       {menuOpen && (
-        <div className="lg:hidden border-t border-border bg-background animate-fade-in">
+        <div className="lg:hidden border-t border-border bg-background animate-fade-in max-h-[80vh] overflow-y-auto">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
-            {navItems.map((item) => (
-              <Link key={item.label} to={item.href} className="px-3 py-3 text-sm font-medium text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg transition-colors uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
-                {item.label}
-              </Link>
+            {navGroups.map((group) => (
+              <div key={group.label} className="mb-2">
+                <p className="flex items-center gap-1.5 px-3 mb-1 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                  <group.icon className="w-3 h-3" /> {group.label}
+                </p>
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             ))}
+            <div className="border-t border-border pt-2 mt-1">
+              {flatItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg",
+                    item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary"
+                  )}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <item.icon className="w-4 h-4" /> {item.label}
+                </Link>
+              ))}
+            </div>
             {user ? (
               <>
                 <Link to="/admin" className="px-3 py-3 text-sm font-medium text-gold uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>

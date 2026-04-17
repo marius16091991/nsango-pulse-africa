@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Send, Megaphone, BarChart3, Users,
   Settings, Crown, LogOut, Bell, Eye, PieChart, Newspaper,
-  MessageSquare, Image, Menu, X, ChevronRight, User
+  MessageSquare, Image, Menu, X, ChevronRight, User, Tv, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const menuSections = [
   {
-    label: "Général",
+    label: "Vue d'ensemble",
     items: [
       { label: "Tableau de bord", icon: LayoutDashboard, path: "/admin" },
       { label: "Notifications", icon: Bell, path: "/admin/notifications", badge: 3 },
@@ -21,6 +21,7 @@ const menuSections = [
     label: "Contenus",
     items: [
       { label: "Articles", icon: FileText, path: "/admin/articles" },
+      { label: "Vidéos / TV", icon: Tv, path: "/admin/videos" },
       { label: "Médias", icon: Image, path: "/admin/medias" },
       { label: "Publications", icon: Send, path: "/admin/publications" },
       { label: "Magazine", icon: Newspaper, path: "/admin/magazine" },
@@ -35,14 +36,14 @@ const menuSections = [
     ],
   },
   {
-    label: "Utilisateurs",
+    label: "Communauté",
     items: [
       { label: "Abonnements", icon: Crown, path: "/admin/subscriptions" },
       { label: "Utilisateurs", icon: Users, path: "/admin/users" },
     ],
   },
   {
-    label: "Système",
+    label: "Pilotage",
     items: [
       { label: "Analytiques", icon: BarChart3, path: "/admin/analytics" },
       { label: "Diffusion", icon: Eye, path: "/admin/distribution" },
@@ -52,21 +53,21 @@ const menuSections = [
 ];
 
 const AdminLayout = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
+    if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
 
-  const isActive = (path: string) => {
-    if (path === "/admin") return location.pathname === "/admin";
-    return location.pathname.startsWith(path);
-  };
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const isActive = (path: string) =>
+    path === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(path);
 
   const currentPage = menuSections.flatMap(s => s.items).find(i => isActive(i.path));
 
@@ -85,125 +86,149 @@ const AdminLayout = () => {
 
   if (!user) return null;
 
-  return (
-    <div className="flex flex-col h-screen bg-muted/30 overflow-hidden">
-      {/* Top bar */}
-      <header className="h-14 bg-card border-b border-border flex items-center px-4 shrink-0 z-50 shadow-sm">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="mr-3 hover:bg-muted"
-          onClick={() => setMenuOpen(true)}
-        >
-          <Menu className="w-5 h-5" />
-        </Button>
-        <Link to="/admin" className="flex items-center gap-2 mr-3">
-          <span className="text-gold font-display text-xl font-bold">N</span>
-          <span className="font-display text-sm font-semibold hidden sm:inline">Admin</span>
-        </Link>
-        {currentPage && (
-          <div className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground">
-            <ChevronRight className="w-3 h-3" />
-            <span>{currentPage.label}</span>
+  const Sidebar = ({ onItemClick }: { onItemClick?: () => void }) => (
+    <>
+      {/* Brand */}
+      <div className="h-16 flex items-center gap-2.5 px-5 border-b border-border/60 shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-sm">
+          <Sparkles className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <p className="font-display text-sm font-bold leading-tight">Nsango Studio</p>
+          <p className="text-[10px] text-muted-foreground font-body uppercase tracking-widest">Console admin</p>
+        </div>
+      </div>
+
+      {/* Sections */}
+      <div className="flex-1 overflow-y-auto py-4">
+        {menuSections.map((section) => (
+          <div key={section.label} className="px-3 mb-3">
+            <p className="px-3 mb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground/80 font-bold">
+              {section.label}
+            </p>
+            <ul className="space-y-0.5">
+              {section.items.map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      onClick={onItemClick}
+                      className={cn(
+                        "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200",
+                        active
+                          ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold font-semibold shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                      )}
+                    >
+                      {active && <span className="absolute left-0 top-2 bottom-2 w-1 bg-gold rounded-r" />}
+                      <item.icon className={cn("w-4 h-4 shrink-0 transition-transform", active && "scale-110")} />
+                      <span className="flex-1 font-body">{item.label}</span>
+                      {'badge' in item && item.badge && (
+                        <span className="min-w-[18px] h-[18px] px-1 bg-destructive text-destructive-foreground rounded-full text-[10px] flex items-center justify-center font-bold">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        )}
-        <div className="ml-auto flex items-center gap-3">
-          <Link to="/admin/notifications">
-            <Button variant="ghost" size="icon" className="relative hover:bg-muted">
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-[9px] flex items-center justify-center font-bold">3</span>
-            </Button>
-          </Link>
-          <div className="flex items-center gap-2 pl-3 border-l border-border">
-            <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center">
-              <User className="w-3.5 h-3.5 text-gold" />
-            </div>
-            <span className="text-xs font-medium hidden md:inline max-w-[120px] truncate">
-              {profile?.display_name || user.email}
-            </span>
+        ))}
+      </div>
+
+      {/* User card + actions */}
+      <div className="border-t border-border/60 p-3 space-y-2 shrink-0">
+        <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-secondary/50">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center">
+            <User className="w-4 h-4 text-gold" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold truncate">{profile?.display_name || user.email}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
           </div>
         </div>
-      </header>
+        <div className="flex gap-1">
+          <Link to="/" className="flex-1">
+            <Button variant="ghost" size="sm" className="w-full text-xs gap-1.5 h-8">
+              <Eye className="w-3.5 h-3.5" /> Site
+            </Button>
+          </Link>
+          <Button variant="ghost" size="sm" className="flex-1 text-xs gap-1.5 h-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={handleSignOut}>
+            <LogOut className="w-3.5 h-3.5" /> Sortir
+          </Button>
+        </div>
+      </div>
+    </>
+  );
 
-      {/* Overlay menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-[100]" onClick={() => setMenuOpen(false)}>
+  return (
+    <div className="flex h-screen bg-muted/30 overflow-hidden">
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-64 bg-card border-r border-border shrink-0">
+        <Sidebar />
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-[100]" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" />
-          <nav
-            className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-card border-r border-border shadow-2xl animate-fade-in overflow-y-auto"
+          <aside
+            className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-card border-r border-border shadow-2xl animate-fade-in flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Menu header */}
-            <div className="h-14 flex items-center justify-between px-4 border-b border-border">
-              <Link to="/admin" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
-                <span className="text-gold font-display text-xl font-bold">N</span>
-                <span className="font-display text-sm font-semibold">Nsango Admin</span>
-              </Link>
-              <Button variant="ghost" size="icon" className="hover:bg-muted" onClick={() => setMenuOpen(false)}>
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Menu items */}
-            <div className="py-3 space-y-1">
-              {menuSections.map((section) => (
-                <div key={section.label} className="px-3 mb-2">
-                  <p className="px-3 mb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-                    {section.label}
-                  </p>
-                  <ul className="space-y-0.5">
-                    {section.items.map((item) => (
-                      <li key={item.path}>
-                        <Link
-                          to={item.path}
-                          onClick={() => setMenuOpen(false)}
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                            isActive(item.path)
-                              ? "bg-gold/10 text-gold font-medium shadow-sm"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                          )}
-                        >
-                          <item.icon className="w-4 h-4 shrink-0" />
-                          <span className="flex-1">{item.label}</span>
-                          {'badge' in item && item.badge && (
-                            <span className="w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-[10px] flex items-center justify-center font-bold">
-                              {item.badge}
-                            </span>
-                          )}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-border p-3 space-y-1">
-              <Link
-                to="/"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
-                <Eye className="w-4 h-4 shrink-0" />
-                <span>Voir le site</span>
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
-              >
-                <LogOut className="w-4 h-4 shrink-0" />
-                <span>Déconnexion</span>
-              </button>
-            </div>
-          </nav>
+            <Sidebar onItemClick={() => setMobileOpen(false)} />
+          </aside>
         </div>
       )}
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        <Outlet />
-      </main>
+      {/* Main column */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar */}
+        <header className="h-14 bg-card/80 backdrop-blur-sm border-b border-border flex items-center px-4 lg:px-6 shrink-0 gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden hover:bg-muted"
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+          <div className="flex items-center gap-2 min-w-0">
+            <Link to="/admin" className="text-xs text-muted-foreground hover:text-foreground font-body shrink-0">
+              Admin
+            </Link>
+            {currentPage && currentPage.path !== "/admin" && (
+              <>
+                <ChevronRight className="w-3 h-3 text-muted-foreground shrink-0" />
+                <span className="text-sm font-semibold font-body truncate">{currentPage.label}</span>
+              </>
+            )}
+            {currentPage?.path === "/admin" && (
+              <span className="text-sm font-semibold font-body">Tableau de bord</span>
+            )}
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <Link to="/admin/notifications">
+              <Button variant="ghost" size="icon" className="relative hover:bg-muted h-9 w-9">
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full ring-2 ring-card" />
+              </Button>
+            </Link>
+            <Link to="/" className="hidden sm:block">
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8">
+                <Eye className="w-3.5 h-3.5" /> Voir le site
+              </Button>
+            </Link>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
