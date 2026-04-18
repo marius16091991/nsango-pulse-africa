@@ -1,17 +1,18 @@
 import { useState } from "react";
-import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown } from "lucide-react";
+import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown, Headphones, Calendar, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
-// Graduated UX: Discover → Inspire → Live → Watch → Read
+// Graduated UX: Discover → Inspire → Live → Watch → Read → About
 const navGroups = [
   {
     label: "Découvrir",
     icon: Compass,
     items: [
       { label: "Accueil", href: "/", desc: "Le meilleur de Nsango" },
+      { label: "Actualités", href: "/actualites", desc: "Toutes les dernières nouvelles" },
       { label: "Portraits", href: "/portraits", desc: "Visages qui inspirent" },
     ],
   },
@@ -28,13 +29,22 @@ const navGroups = [
     icon: Newspaper,
     items: [
       { label: "Culture", href: "/culture", desc: "Art, mode, lifestyle" },
+      { label: "Événements", href: "/evenements", desc: "Agenda & rendez-vous" },
+    ],
+  },
+  {
+    label: "Écouter & Lire",
+    icon: Headphones,
+    items: [
+      { label: "Podcasts", href: "/podcasts", desc: "L'audio Nsango" },
+      { label: "Magazine", href: "/magazine", desc: "L'édition imprimée" },
+      { label: "À propos", href: "/a-propos", desc: "Notre histoire & contact" },
     ],
   },
 ];
 
 const flatItems = [
   { label: "Nsango TV", href: "/videos", icon: Tv, highlight: true },
-  { label: "Magazine", href: "/magazine", icon: Newspaper },
 ];
 
 const Header = () => {
