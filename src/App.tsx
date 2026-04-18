@@ -11,6 +11,10 @@ import Culture from "./pages/Culture.tsx";
 import Interviews from "./pages/Interviews.tsx";
 import Videos from "./pages/Videos.tsx";
 import Magazine from "./pages/Magazine.tsx";
+import Actualites from "./pages/Actualites.tsx";
+import Evenements from "./pages/Evenements.tsx";
+import Podcasts from "./pages/Podcasts.tsx";
+import APropos from "./pages/APropos.tsx";
 import Auth from "./pages/Auth.tsx";
 import ArticlePage from "./pages/ArticlePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -48,6 +52,10 @@ const App = () => (
             <Route path="/interviews" element={<Interviews />} />
             <Route path="/videos" element={<Videos />} />
             <Route path="/magazine" element={<Magazine />} />
+            <Route path="/actualites" element={<Actualites />} />
+            <Route path="/evenements" element={<Evenements />} />
+            <Route path="/podcasts" element={<Podcasts />} />
+            <Route path="/a-propos" element={<APropos />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/article/:id" element={<ArticlePage />} />
 
