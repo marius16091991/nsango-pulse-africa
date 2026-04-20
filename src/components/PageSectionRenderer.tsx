@@ -46,10 +46,12 @@ export const PageSectionRenderer = ({ section }: { section: PageSection }) => {
     if (ids.length > 0) {
       supabase.from(table as any).select("*").in("id", ids).then(({ data }) => setItems(data || []));
     } else if (section.section_type === "articles_grid" || section.section_type === "videos_grid") {
-      supabase.from(table as any).select("*").eq("status", "published").order("created_at", { ascending: false }).limit(limit)
-        .then(({ data }) => setItems(data || []));
+      let q = supabase.from(table as any).select("*").eq("status", "published");
+      const cat = (style as any)?.category;
+      if (cat && cat !== "all") q = q.eq("category", cat);
+      q.order("created_at", { ascending: false }).limit(limit).then(({ data }) => setItems(data || []));
     }
-  }, [section.id]);
+  }, [section.id, (style as any)?.category, limit]);
 
   // HERO
   if (section.section_type === "hero") {
