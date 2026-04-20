@@ -35,6 +35,7 @@ import AnalyticsPage from "./pages/admin/AnalyticsPage.tsx";
 import DistributionPage from "./pages/admin/DistributionPage.tsx";
 import SettingsPage from "./pages/admin/SettingsPage.tsx";
 import NotificationsPage from "./pages/admin/NotificationsPage.tsx";
+import ContentManager from "./pages/admin/ContentManager.tsx";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => (
               <Route path="distribution" element={<DistributionPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="content" element={<ContentManager />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
