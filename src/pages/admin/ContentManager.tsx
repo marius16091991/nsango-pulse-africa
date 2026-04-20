@@ -32,6 +32,7 @@ const SECTION_TYPES = [
 ];
 
 const LAYOUTS = ["grid", "list", "carousel", "centered", "split"];
+const ARTICLE_CATEGORIES = ["all", "Portraits", "Business", "Culture", "Interviews", "Politique", "Talents", "Sport"];
 
 const ContentManager = () => {
   const [pages, setPages] = useState<Page[]>([]);
@@ -296,6 +297,18 @@ const ContentManager = () => {
                         <SelectContent>{LAYOUTS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
+                    {currentSection.section_type === "articles_grid" && (
+                      <div>
+                        <Label className="text-xs">Catégorie filtrée</Label>
+                        <Select value={currentSection.style?.category || "all"} onValueChange={v => updateStyle("category", v)}>
+                          <SelectTrigger className="mt-1 h-8 text-sm"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {ARTICLE_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c === "all" ? "Toutes catégories" : c}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-[10px] text-muted-foreground mt-1">Ignoré si des articles sont sélectionnés manuellement.</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-3">
                       <div><Label className="text-xs">Colonnes</Label><Input type="number" min={1} max={6} value={currentSection.style?.columns || 3} onChange={e => updateStyle("columns", parseInt(e.target.value) || 3)} className="mt-1 h-8 text-sm" /></div>
                       <div><Label className="text-xs">Nombre d'éléments</Label><Input type="number" min={1} max={20} value={currentSection.style?.limit || 6} onChange={e => updateStyle("limit", parseInt(e.target.value) || 6)} className="mt-1 h-8 text-sm" /></div>
