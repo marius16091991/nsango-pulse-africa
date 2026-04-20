@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { Save, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, FileText, Image as ImageIcon, Palette, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
+import MediaUpload from "@/components/MediaUpload";
 
 interface Page { id: string; slug: string; title: string; meta_description: string; visible: boolean; sort_order: number; }
 interface Section {
@@ -263,7 +264,20 @@ const ContentManager = () => {
                     <div><Label className="text-xs">Titre</Label><Input value={currentSection.title} onChange={e => updateSectionField("title", e.target.value)} className="mt-1 h-8 text-sm" /></div>
                     <div><Label className="text-xs">Sous-titre</Label><Input value={currentSection.subtitle} onChange={e => updateSectionField("subtitle", e.target.value)} className="mt-1 h-8 text-sm" /></div>
                     <div><Label className="text-xs">Corps de texte</Label><Textarea rows={4} value={currentSection.body} onChange={e => updateSectionField("body", e.target.value)} className="mt-1 text-sm" /></div>
-                    <div><Label className="text-xs">URL média (image / vidéo)</Label><Input value={currentSection.media_url} onChange={e => updateSectionField("media_url", e.target.value)} placeholder="https://..." className="mt-1 h-8 text-sm" /></div>
+                    <div>
+                      <Label className="text-xs">Média (image / vidéo)</Label>
+                      <div className="mt-1">
+                        <MediaUpload
+                          accept="image/*,video/*"
+                          initialUrl={currentSection.media_url}
+                          initialSource={currentSection.media_url?.length === 11 || currentSection.media_url?.includes("youtu") ? "youtube" : "upload"}
+                          onChange={({ url }) => updateSectionField("media_url", url)}
+                        />
+                        {currentSection.media_url && (
+                          <p className="text-[11px] text-muted-foreground font-body mt-1 truncate">URL: {currentSection.media_url}</p>
+                        )}
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div><Label className="text-xs">Libellé bouton</Label><Input value={currentSection.cta_label} onChange={e => updateSectionField("cta_label", e.target.value)} className="mt-1 h-8 text-sm" /></div>
                       <div><Label className="text-xs">URL bouton</Label><Input value={currentSection.cta_url} onChange={e => updateSectionField("cta_url", e.target.value)} className="mt-1 h-8 text-sm" /></div>
