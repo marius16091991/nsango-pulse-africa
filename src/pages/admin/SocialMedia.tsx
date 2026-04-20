@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Plus, Trash2, ExternalLink, Edit, Save, BarChart3, Send, Copy, Calendar, Loader2, Share2, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const SITE = typeof window !== "undefined" ? window.location.origin : "https://n
 const SocialMedia = () => {
   const { user } = useAuth();
   const [tab, setTab] = useState("accounts");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // === COMPTES ===
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -186,6 +188,28 @@ const SocialMedia = () => {
   useEffect(() => {
     fetchAccounts(); fetchPosts(); fetchArticles(); fetchStats();
   }, []);
+
+  // Pré-remplir depuis ?article=ID (deep-link depuis ArticlesManager)
+  useEffect(() => {
+    const articleId = searchParams.get("article");
+    if (articleId && articles.length) {
+      const art = articles.find(a => a.id === articleId);
+      if (art) {
+        setTab("queue");
+        setPostForm({
+          article_id: articleId,
+          message: `${art.title} — à lire sur Nsango Magazine`,
+          networks: ["facebook", "x", "linkedin", "whatsapp", "telegram"],
+          status: "draft",
+          utm_campaign: slugify(art.title),
+        });
+        setEditPostId(null);
+        setPostDialog(true);
+        searchParams.delete("article");
+        setSearchParams(searchParams, { replace: true });
+      }
+    }
+  }, [searchParams, articles, setSearchParams]);
 
   const totalClicks = stats.reduce((s, x) => s + x.clicks, 0);
 
