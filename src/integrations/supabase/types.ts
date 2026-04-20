@@ -178,6 +178,72 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          duration: string
+          features: Json
+          highlighted: boolean
+          id: string
+          name: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          duration: string
+          features?: Json
+          highlighted?: boolean
+          id?: string
+          name: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          duration?: string
+          features?: Json
+          highlighted?: boolean
+          id?: string
+          name?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      premium_settings: {
+        Row: {
+          category: string
+          key: string
+          label: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          category?: string
+          key: string
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          category?: string
+          key?: string
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
