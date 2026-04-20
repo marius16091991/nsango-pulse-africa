@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { Save, Plus, Trash2, ArrowUp, ArrowDown, Eye, EyeOff, FileText, Image as ImageIcon, Palette, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
+import MediaUpload from "@/components/MediaUpload";
 
 interface Page { id: string; slug: string; title: string; meta_description: string; visible: boolean; sort_order: number; }
 interface Section {
