@@ -148,6 +148,57 @@ export type Database = {
           },
         ]
       }
+      email_outbox: {
+        Row: {
+          attempts: number
+          category: string
+          created_at: string
+          html_body: string
+          id: string
+          last_error: string | null
+          metadata: Json
+          notification_id: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          text_body: string | null
+          to_email: string
+          to_name: string | null
+        }
+        Insert: {
+          attempts?: number
+          category?: string
+          created_at?: string
+          html_body: string
+          id?: string
+          last_error?: string | null
+          metadata?: Json
+          notification_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          text_body?: string | null
+          to_email: string
+          to_name?: string | null
+        }
+        Update: {
+          attempts?: number
+          category?: string
+          created_at?: string
+          html_body?: string
+          id?: string
+          last_error?: string | null
+          metadata?: Json
+          notification_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          text_body?: string | null
+          to_email?: string
+          to_name?: string | null
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string
@@ -654,6 +705,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      enqueue_notification_email: {
+        Args: {
+          _description: string
+          _link: string
+          _notification_id: string
+          _title: string
+          _type: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -661,6 +723,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_email_failed: {
+        Args: { _error: string; _id: string }
+        Returns: undefined
+      }
+      mark_email_sent: { Args: { _id: string }; Returns: undefined }
       notify_admins: {
         Args: {
           _description: string
