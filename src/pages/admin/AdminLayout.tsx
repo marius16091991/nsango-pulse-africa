@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Send, Megaphone, BarChart3, Users,
   Settings, Crown, LogOut, Bell, Eye, PieChart, Newspaper,
-  MessageSquare, Image, Menu, X, ChevronRight, User, Tv, Sparkles, Layers, Mail
+  MessageSquare, Image, Menu, X, ChevronRight, User, Tv, Sparkles, Layers, Mail, Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
