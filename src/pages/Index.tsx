@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
+import PublicSurvey from "@/components/engagement/PublicSurvey";
 import { usePageSections } from "@/hooks/usePageSections";
 import { PageSectionRenderer } from "@/components/PageSectionRenderer";
 
@@ -29,8 +30,9 @@ const Index = () => {
           <PageSectionRenderer section={section} />
           {/* Insert ad banner after the first hero / featured section */}
           {i === 0 && (
-            <div className="container mx-auto px-4 py-4">
+            <div className="container mx-auto px-4 py-4 space-y-6">
               <AdBanner variant="horizontal" />
+              <PublicSurvey />
             </div>
           )}
         </div>
