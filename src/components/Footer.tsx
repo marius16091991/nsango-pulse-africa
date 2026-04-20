@@ -1,15 +1,9 @@
-import { Crown, Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
+import { Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import PremiumDialog from "@/components/PremiumDialog";
-
-const socials = [
-  { label: "Facebook", icon: Facebook, href: "https://facebook.com/kibafood" },
-  { label: "X", icon: Twitter, href: "https://x.com/kibafood" },
-  { label: "Instagram", icon: Instagram, href: "https://instagram.com/kibafood" },
-  { label: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/company/kibafood" },
-  { label: "YouTube", icon: Youtube, href: "https://youtube.com/@kibafood" },
-];
+import { useSocialAccounts } from "@/hooks/useSocialAccounts";
+import { NETWORKS, type SocialNetwork } from "@/lib/socialShare";
 
 const rubriques = [
   { label: "Portraits", to: "/portraits" },
@@ -30,6 +24,7 @@ const aboutLinks = [
 
 const Footer = () => {
   const [premiumOpen, setPremiumOpen] = useState(false);
+  const { accounts } = useSocialAccounts(true);
   return (
   <footer className="gradient-dark text-primary-foreground">
     <div className="container mx-auto px-4 py-16">
@@ -45,18 +40,23 @@ const Footer = () => {
             contact@kibafood.cm
           </a>
           <div className="flex gap-3 mt-6">
-            {socials.map(({ label, icon: Icon, href }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="w-9 h-9 rounded-full bg-primary-foreground/5 hover:bg-gold hover:text-primary text-primary-foreground/60 flex items-center justify-center transition-colors"
-              >
-                <Icon className="w-4 h-4" />
-              </a>
-            ))}
+            {accounts.map((a) => {
+              const cfg = NETWORKS[a.network as SocialNetwork];
+              if (!cfg) return null;
+              const Icon = cfg.icon;
+              return (
+                <a
+                  key={a.id}
+                  href={a.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={cfg.label}
+                  className="w-9 h-9 rounded-full bg-primary-foreground/5 hover:bg-gold hover:text-primary text-primary-foreground/60 flex items-center justify-center transition-colors"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              );
+            })}
           </div>
         </div>
 

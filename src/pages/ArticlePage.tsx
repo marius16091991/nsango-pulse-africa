@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReactionBar from "@/components/engagement/ReactionBar";
 import CommentSection from "@/components/engagement/CommentSection";
+import ShareBar from "@/components/social/ShareBar";
 
 const ArticlePage = () => {
   const { id } = useParams();
@@ -94,6 +95,10 @@ const ArticlePage = () => {
         <div className="mt-10 pt-6 border-t border-border">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">Que pensez-vous de cet article ?</p>
           <ReactionBar targetType="article" targetId={article.id} />
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-border">
+          <ShareBar title={article.title} articleId={article.id} />
         </div>
 
         <CommentSection articleId={article.id} />
