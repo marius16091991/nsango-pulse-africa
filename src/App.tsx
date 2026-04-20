@@ -16,6 +16,7 @@ import Evenements from "./pages/Evenements.tsx";
 import Podcasts from "./pages/Podcasts.tsx";
 import APropos from "./pages/APropos.tsx";
 import Auth from "./pages/Auth.tsx";
+import Premium from "./pages/Premium.tsx";
 import ArticlePage from "./pages/ArticlePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/podcasts" element={<Podcasts />} />
             <Route path="/a-propos" element={<APropos />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/premium" element={<Premium />} />
             <Route path="/article/:id" element={<ArticlePage />} />
 
             {/* Admin routes */}
