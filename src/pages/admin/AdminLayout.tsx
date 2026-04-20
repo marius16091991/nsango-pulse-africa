@@ -60,6 +60,8 @@ const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
+  const { unreadCount } = useNotifications();
+  const menuSections = buildMenuSections(unreadCount);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
@@ -213,12 +215,7 @@ const AdminLayout = () => {
             )}
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <Link to="/admin/notifications">
-              <Button variant="ghost" size="icon" className="relative hover:bg-muted h-9 w-9">
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full ring-2 ring-card" />
-              </Button>
-            </Link>
+            <NotificationBell adminLink />
             <Link to="/" className="hidden sm:block">
               <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8">
                 <Eye className="w-3.5 h-3.5" /> Voir le site
