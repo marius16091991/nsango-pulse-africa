@@ -1,11 +1,3 @@
-import CategoryPage from "@/components/CategoryPage";
-
-const Interviews = () => (
-  <CategoryPage
-    category="Interviews"
-    title="Interviews"
-    subtitle="Conversations exclusives"
-  />
-);
-
+import DynamicPage from "@/components/DynamicPage";
+const Interviews = () => <DynamicPage slug="interviews" />;
 export default Interviews;
