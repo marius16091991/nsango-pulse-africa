@@ -38,7 +38,7 @@ export const useNotifications = () => {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("notifications-realtime")
+      .channel(`notifications-realtime-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, (payload) => {
         if (payload.eventType === "INSERT") {
           const n = payload.new as Notification;
