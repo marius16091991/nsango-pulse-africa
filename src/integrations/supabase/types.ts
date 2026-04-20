@@ -178,6 +178,96 @@ export type Database = {
         }
         Relationships: []
       }
+      page_sections: {
+        Row: {
+          body: string | null
+          content_ids: Json
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          id: string
+          media_url: string | null
+          page_slug: string
+          section_key: string
+          section_type: string
+          sort_order: number
+          style: Json
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          body?: string | null
+          content_ids?: Json
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          media_url?: string | null
+          page_slug: string
+          section_key: string
+          section_type?: string
+          sort_order?: number
+          style?: Json
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          body?: string | null
+          content_ids?: Json
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          media_url?: string | null
+          page_slug?: string
+          section_key?: string
+          section_type?: string
+          sort_order?: number
+          style?: Json
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      pages: {
+        Row: {
+          created_at: string
+          id: string
+          meta_description: string | null
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta_description?: string | null
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       premium_plans: {
         Row: {
           active: boolean
