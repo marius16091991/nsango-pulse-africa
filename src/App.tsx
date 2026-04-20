@@ -36,6 +36,7 @@ import DistributionPage from "./pages/admin/DistributionPage.tsx";
 import SettingsPage from "./pages/admin/SettingsPage.tsx";
 import NotificationsPage from "./pages/admin/NotificationsPage.tsx";
 import ContentManager from "./pages/admin/ContentManager.tsx";
+import UserNotifications from "./pages/compte/Notifications.tsx";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/article/:id" element={<ArticlePage />} />
+            <Route path="/compte/notifications" element={<UserNotifications />} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminLayout />}>
