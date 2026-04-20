@@ -24,10 +24,10 @@ interface Issue {
 
 const MagazineManager = () => {
   const [issues, setIssues] = useState<Issue[]>([
-    { id: 1, title: "Kibafood — Avril 2026", cover: magazineCover, status: "current", date: "Avril 2026", articles: 18, downloads: 3200, premium: true, summary: "" },
-    { id: 2, title: "Kibafood — Mars 2026", cover: magazineCover, status: "archived", date: "Mars 2026", articles: 16, downloads: 5400, premium: true, summary: "" },
-    { id: 3, title: "Kibafood — Février 2026", cover: magazineCover, status: "archived", date: "Février 2026", articles: 15, downloads: 4800, premium: false, summary: "" },
-    { id: 4, title: "Kibafood — Janvier 2026", cover: magazineCover, status: "archived", date: "Janvier 2026", articles: 14, downloads: 4200, premium: false, summary: "" },
+    { id: 1, title: "Nsango Magazine — Avril 2026", cover: magazineCover, status: "current", date: "Avril 2026", articles: 18, downloads: 3200, premium: true, summary: "" },
+    { id: 2, title: "Nsango Magazine — Mars 2026", cover: magazineCover, status: "archived", date: "Mars 2026", articles: 16, downloads: 5400, premium: true, summary: "" },
+    { id: 3, title: "Nsango Magazine — Février 2026", cover: magazineCover, status: "archived", date: "Février 2026", articles: 15, downloads: 4800, premium: false, summary: "" },
+    { id: 4, title: "Nsango Magazine — Janvier 2026", cover: magazineCover, status: "archived", date: "Janvier 2026", articles: 14, downloads: 4200, premium: false, summary: "" },
   ]);
   const [createOpen, setCreateOpen] = useState(false);
   const [formTitle, setFormTitle] = useState("");
@@ -69,7 +69,7 @@ const MagazineManager = () => {
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle className="font-display">Créer une édition</DialogTitle></DialogHeader>
             <div className="space-y-4 mt-4">
-              <div><Label className="font-body text-sm">Titre</Label><Input className="mt-1" placeholder="Kibafood — Mai 2026" value={formTitle} onChange={e => setFormTitle(e.target.value)} /></div>
+              <div><Label className="font-body text-sm">Titre</Label><Input className="mt-1" placeholder="Nsango Magazine — Mai 2026" value={formTitle} onChange={e => setFormTitle(e.target.value)} /></div>
               <div><Label className="font-body text-sm">Image de couverture (URL)</Label><Input className="mt-1" placeholder="https://..." value={formCover} onChange={e => setFormCover(e.target.value)} /></div>
               <div><Label className="font-body text-sm">Sommaire</Label><Textarea className="mt-1" rows={4} placeholder="Résumé du contenu..." value={formSummary} onChange={e => setFormSummary(e.target.value)} /></div>
               <div className="flex items-center gap-3">

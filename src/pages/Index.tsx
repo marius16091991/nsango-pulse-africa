@@ -34,7 +34,7 @@ const Index = () => {
       toast.error("Adresse email invalide");
       return;
     }
-    toast.success("Merci ! Vous êtes inscrit à la newsletter Kibafood.");
+    toast.success("Merci ! Vous êtes inscrit à la newsletter Nsango Magazine.");
     setNewsletterEmail("");
   };
 

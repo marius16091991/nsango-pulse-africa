@@ -32,7 +32,7 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <h3 className="font-display text-2xl font-bold mb-2">
-            <span className="text-gold">K</span>ibafood
+            <span className="text-gold">N</span>sango
           </h3>
           <p className="text-sm text-primary-foreground/60 font-body leading-relaxed">
             Les visages qui inspirent l'Afrique. Le magazine digital premium dédié aux personnalités influentes du continent.
@@ -91,7 +91,7 @@ const Footer = () => (
 
       <div className="border-t border-primary-foreground/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between gap-3 text-center sm:text-left">
         <p className="text-xs text-primary-foreground/40 font-body">
-          &copy; {new Date().getFullYear()} Kibafood — kibafood.cm. Tous droits réservés.
+          &copy; {new Date().getFullYear()} Nsango Magazine. Tous droits réservés.
         </p>
         <div className="flex gap-4 justify-center text-xs text-primary-foreground/40 font-body">
           <Link to="/a-propos" className="hover:text-gold">Mentions légales</Link>
