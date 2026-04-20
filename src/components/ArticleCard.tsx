@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 interface ArticleCardProps {
   image: string;
   category: string;
@@ -8,6 +10,7 @@ interface ArticleCardProps {
   readTime?: string;
   size?: "small" | "medium" | "large";
   premium?: boolean;
+  href?: string;
 }
 
 const ArticleCard = ({
@@ -20,12 +23,16 @@ const ArticleCard = ({
   readTime,
   size = "medium",
   premium = false,
+  href,
 }: ArticleCardProps) => {
   const isLarge = size === "large";
   const isSmall = size === "small";
 
+  const Wrapper: any = href ? Link : "article";
+  const wrapperProps = href ? { to: href } : {};
+
   return (
-    <article className="group cursor-pointer">
+    <Wrapper {...wrapperProps} className="group cursor-pointer block">
       <div className={`relative overflow-hidden rounded-lg ${isLarge ? "aspect-[16/9]" : isSmall ? "aspect-[4/3]" : "aspect-[3/2]"}`}>
         <img
           src={image}
@@ -61,7 +68,7 @@ const ArticleCard = ({
           )}
         </div>
       )}
-    </article>
+    </Wrapper>
   );
 };
 

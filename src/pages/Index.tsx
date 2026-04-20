@@ -8,6 +8,7 @@ import SectionTitle from "@/components/SectionTitle";
 import { Crown, Play, Headphones, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 import heroImg from "@/assets/hero-personality.jpg";
 import featuredImg from "@/assets/personality-featured.jpg";
@@ -20,11 +21,23 @@ const fallbackImages = [heroImg, featuredImg, cultureImg, businessImg, talentImg
 
 const Index = () => {
   const [dbArticles, setDbArticles] = useState<any[]>([]);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
 
   useEffect(() => {
     supabase.from("articles").select("*").eq("status", "published").order("created_at", { ascending: false }).limit(20)
       .then(({ data }) => setDbArticles(data || []));
   }, []);
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.includes("@")) {
+      toast.error("Adresse email invalide");
+      return;
+    }
+    toast.success("Merci ! Vous êtes inscrit à la newsletter Kibafood.");
+    setNewsletterEmail("");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -48,14 +61,18 @@ const Index = () => {
               CEO de NovaTech Africa, elle révolutionne l'accès à la technologie sur le continent et inspire une nouvelle génération d'entrepreneurs.
             </p>
             <div className="flex gap-3 mt-6">
-              <Button className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-2">
-                Lire le portrait
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-xs uppercase tracking-wider font-body gap-2">
-                <Play className="w-4 h-4" />
-                Voir l'interview
-              </Button>
+              <Link to="/portraits">
+                <Button className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-2">
+                  Lire le portrait
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link to="/videos">
+                <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-xs uppercase tracking-wider font-body gap-2">
+                  <Play className="w-4 h-4" />
+                  Voir l'interview
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -177,12 +194,16 @@ const Index = () => {
               <h5 className="font-display font-bold text-lg">Édition Avril 2026</h5>
               <p className="text-sm text-muted-foreground font-body mt-1">Spécial : Les bâtisseurs de l'Afrique de demain</p>
               <div className="flex gap-2 mt-4">
-                <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary text-xs uppercase tracking-wider font-body flex-1">
-                  Lire
-                </Button>
-                <Button size="sm" variant="outline" className="text-xs uppercase tracking-wider font-body flex-1">
-                  PDF
-                </Button>
+                <Link to="/magazine" className="flex-1">
+                  <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary text-xs uppercase tracking-wider font-body w-full">
+                    Lire
+                  </Button>
+                </Link>
+                <Link to="/magazine" className="flex-1">
+                  <Button size="sm" variant="outline" className="text-xs uppercase tracking-wider font-body w-full">
+                    PDF
+                  </Button>
+                </Link>
               </div>
             </div>
           </aside>
@@ -194,9 +215,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <SectionTitle title="Business & Leadership" gold />
-            <a href="#" className="text-gold text-xs uppercase tracking-wider font-body hover:underline hidden sm:block">
+            <Link to="/business" className="text-gold text-xs uppercase tracking-wider font-body hover:underline hidden sm:block">
               Voir tout →
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
@@ -254,7 +275,7 @@ const Index = () => {
               { title: "Reportage : Les marchés émergents du continent", duration: "08:45" },
               { title: "Documentaire : L'entrepreneuriat féminin en Afrique de l'Est", duration: "25:12" },
             ].map((v, i) => (
-              <div key={i} className="group cursor-pointer">
+              <Link key={i} to="/videos" className="group cursor-pointer block">
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
                   <img src={i === 0 ? featuredImg : i === 1 ? businessImg : cultureImg} alt={v.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 gradient-hero opacity-50" />
@@ -266,7 +287,7 @@ const Index = () => {
                   <span className="absolute bottom-3 right-3 bg-primary/80 text-primary-foreground text-xs px-2 py-1 rounded font-body">{v.duration}</span>
                 </div>
                 <h3 className="font-display font-bold text-sm mt-3 group-hover:text-gold transition-colors">{v.title}</h3>
-              </div>
+              </Link>
             ))}
           </div>
           <div className="mt-4">
@@ -285,7 +306,7 @@ const Index = () => {
             { title: "Épisode 40 : L'art contemporain africain", guest: "El Anatsui", duration: "52 min" },
             { title: "Épisode 39 : Sport et business", guest: "Didier Drogba", duration: "41 min" },
           ].map((p, i) => (
-            <div key={i} className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:shadow-card transition-shadow cursor-pointer group">
+            <Link key={i} to="/podcasts" className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:shadow-card transition-shadow cursor-pointer group">
               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
                 <Headphones className="w-5 h-5 text-gold" />
               </div>
@@ -294,7 +315,7 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground font-body">Avec {p.guest} · {p.duration}</p>
               </div>
               <Play className="w-5 h-5 text-muted-foreground group-hover:text-gold transition-colors flex-shrink-0" />
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -329,16 +350,19 @@ const Index = () => {
           <p className="text-sm text-primary-foreground/60 font-body mt-3">
             Recevez chaque semaine les portraits, interviews et articles qui font l'actualité africaine.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 mt-6">
             <input
               type="email"
+              required
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Votre adresse email"
               className="flex-1 px-4 py-3 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50"
             />
-            <Button className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body px-8">
+            <Button type="submit" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body px-8">
               S'inscrire
             </Button>
-          </div>
+          </form>
           <p className="text-[10px] text-primary-foreground/30 font-body mt-3">
             En vous inscrivant, vous acceptez notre politique de confidentialité.
           </p>
@@ -358,9 +382,11 @@ const Index = () => {
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-body">Mensuel</p>
               <p className="font-display text-3xl font-bold mt-2">9,99€</p>
               <p className="text-xs text-muted-foreground font-body">/mois</p>
-              <Button className="w-full mt-4 bg-gold hover:bg-gold-dark text-primary text-xs uppercase tracking-wider font-body">
-                Choisir
-              </Button>
+              <Link to="/magazine" className="block">
+                <Button className="w-full mt-4 bg-gold hover:bg-gold-dark text-primary text-xs uppercase tracking-wider font-body">
+                  Choisir
+                </Button>
+              </Link>
             </div>
             <div className="bg-secondary rounded-xl p-6 flex-1 max-w-xs border-2 border-gold relative">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-primary text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full font-body">
@@ -369,9 +395,11 @@ const Index = () => {
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-body">Annuel</p>
               <p className="font-display text-3xl font-bold mt-2">79,99€</p>
               <p className="text-xs text-muted-foreground font-body">/an — 2 mois offerts</p>
-              <Button className="w-full mt-4 bg-gold hover:bg-gold-dark text-primary text-xs uppercase tracking-wider font-body">
-                Choisir
-              </Button>
+              <Link to="/magazine" className="block">
+                <Button className="w-full mt-4 bg-gold hover:bg-gold-dark text-primary text-xs uppercase tracking-wider font-body">
+                  Choisir
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 
 const DistributionPage = () => {
   const [channels, setChannels] = useState([
-    { name: "Site web", icon: Globe, enabled: true, reach: "100%", desc: "Publication sur nsangomagazine.com" },
+    { name: "Site web", icon: Globe, enabled: true, reach: "100%", desc: "Publication sur kibafood.cm" },
     { name: "Newsletter", icon: Mail, enabled: true, reach: "18.4K abonnés", desc: "Envoi automatique aux abonnés newsletter" },
     { name: "Push mobile", icon: Smartphone, enabled: false, reach: "5.2K devices", desc: "Notifications push via l'app mobile" },
     { name: "Premium only", icon: Crown, enabled: true, reach: "1,203 abonnés", desc: "Contenus exclusifs premium" },
