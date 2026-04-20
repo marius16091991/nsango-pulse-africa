@@ -32,6 +32,7 @@ const SECTION_TYPES = [
 ];
 
 const LAYOUTS = ["grid", "list", "carousel", "centered", "split"];
+const ARTICLE_CATEGORIES = ["all", "Portraits", "Business", "Culture", "Interviews", "Politique", "Talents", "Sport"];
 
 const ContentManager = () => {
   const [pages, setPages] = useState<Page[]>([]);
