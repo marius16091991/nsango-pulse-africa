@@ -22,7 +22,7 @@ const Actualites = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "Actualités — Kibafood";
+    document.title = "Actualités — Nsango Magazine";
     const load = async () => {
       const { data } = await supabase
         .from("articles")

@@ -5,7 +5,7 @@ import SectionTitle from "@/components/SectionTitle";
 import { Sparkles, Target, Heart, Users } from "lucide-react";
 
 const APropos = () => {
-  useEffect(() => { document.title = "À propos — Kibafood"; }, []);
+  useEffect(() => { document.title = "À propos — Nsango Magazine"; }, []);
 
   const values = [
     { icon: Sparkles, title: "Excellence", desc: "Un journalisme exigeant qui valorise l'authenticité." },
@@ -19,9 +19,9 @@ const APropos = () => {
       <Header />
       <main className="pt-28 lg:pt-32 pb-20">
         <section className="container mx-auto px-4 max-w-4xl text-center">
-          <SectionTitle title="À propos de Kibafood" subtitle="Notre histoire, notre vision" />
+          <SectionTitle title="À propos de Nsango Magazine" subtitle="Notre histoire, notre vision" />
           <p className="text-lg text-muted-foreground font-body leading-relaxed mt-8">
-            Kibafood est un média panafricain premium qui célèbre les talents, les leaders et les créateurs
+            Nsango Magazine est un média panafricain premium qui célèbre les talents, les leaders et les créateurs
             qui façonnent l'Afrique d'aujourd'hui et de demain. À travers reportages, portraits, interviews et
             chroniques culturelles, nous racontons une Afrique fière, créative et tournée vers l'avenir.
           </p>

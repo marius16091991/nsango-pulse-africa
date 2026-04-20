@@ -12,13 +12,13 @@ const events = [
 ];
 
 const Evenements = () => {
-  useEffect(() => { document.title = "Événements — Kibafood"; }, []);
+  useEffect(() => { document.title = "Événements — Nsango Magazine"; }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-28 lg:pt-32 pb-20 container mx-auto px-4">
-        <SectionTitle title="Événements" subtitle="Agenda des rendez-vous Kibafood" />
+        <SectionTitle title="Événements" subtitle="Agenda des rendez-vous Nsango Magazine" />
         <div className="space-y-4 mt-8 max-w-4xl mx-auto">
           {events.map((ev, i) => {
             const d = new Date(ev.date);

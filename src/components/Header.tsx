@@ -70,7 +70,7 @@ const Header = () => {
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Kibafood — Accueil">
+        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Nsango Magazine — Accueil">
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
             <span className="text-gold">K</span>ibafood
           </h1>
