@@ -1,3 +1,3 @@
-import CategoryPage from "@/components/CategoryPage";
-const Portraits = () => <CategoryPage category="Portraits" title="Portraits" subtitle="Les visages qui font l'Afrique" />;
+import DynamicPage from "@/components/DynamicPage";
+const Portraits = () => <DynamicPage slug="portraits" />;
 export default Portraits;
