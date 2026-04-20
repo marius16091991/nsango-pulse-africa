@@ -37,6 +37,7 @@ import SettingsPage from "./pages/admin/SettingsPage.tsx";
 import NotificationsPage from "./pages/admin/NotificationsPage.tsx";
 import ContentManager from "./pages/admin/ContentManager.tsx";
 import EmailsOutbox from "./pages/admin/EmailsOutbox.tsx";
+import SocialMedia from "./pages/admin/SocialMedia.tsx";
 import UserNotifications from "./pages/compte/Notifications.tsx";
 
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ const App = () => (
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="emails" element={<EmailsOutbox />} />
               <Route path="content" element={<ContentManager />} />
+              <Route path="social" element={<SocialMedia />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Filter, MoreHorizontal, Eye, Edit, Trash2, Send, Loader2 } from "lucide-react";
+import { Search, Plus, Filter, MoreHorizontal, Eye, Edit, Trash2, Send, Loader2, Share2 } from "lucide-react";
 import FileUpload from "@/components/FileUpload";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const categories = ["Portraits", "Business", "Culture", "Interviews", "Politique", "Talents", "Sport"];
 
@@ -28,6 +29,7 @@ const statusLabels: Record<string, string> = {
 
 const ArticlesManager = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -244,6 +246,9 @@ const ArticlesManager = () => {
                             <DropdownMenuItem className="gap-2" onClick={() => openEdit(a)}><Edit className="w-4 h-4" /> Modifier</DropdownMenuItem>
                             {a.status !== "published" && (
                               <DropdownMenuItem className="gap-2" onClick={() => handlePublish(a.id)}><Send className="w-4 h-4" /> Publier</DropdownMenuItem>
+                            )}
+                            {a.status === "published" && (
+                              <DropdownMenuItem className="gap-2" onClick={() => navigate(`/admin/social?article=${a.id}`)}><Share2 className="w-4 h-4" /> Partager sur réseaux</DropdownMenuItem>
                             )}
                             <DropdownMenuItem className="gap-2 text-destructive" onClick={() => handleDelete(a.id)}><Trash2 className="w-4 h-4" /> Supprimer</DropdownMenuItem>
                           </DropdownMenuContent>
