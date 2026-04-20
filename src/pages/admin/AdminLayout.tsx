@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
 import { useNotifications } from "@/hooks/useNotifications";
+import { supabase } from "@/integrations/supabase/client";
 
 const buildMenuSections = (unread: number) => [
   {
@@ -58,6 +59,8 @@ const buildMenuSections = (unread: number) => [
 
 const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [accessLoading, setAccessLoading] = useState(true);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
@@ -67,6 +70,40 @@ const AdminLayout = () => {
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkAccess = async () => {
+      if (loading) return;
+
+      if (!user) {
+        if (!cancelled) {
+          setHasAdminAccess(false);
+          setAccessLoading(false);
+        }
+        return;
+      }
+
+      setAccessLoading(true);
+
+      const [{ data: isAdmin, error: adminError }, { data: isEditor, error: editorError }] = await Promise.all([
+        supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+        supabase.rpc("has_role", { _user_id: user.id, _role: "editor" }),
+      ]);
+
+      if (cancelled) return;
+
+      setHasAdminAccess(!adminError && !editorError && Boolean(isAdmin || isEditor));
+      setAccessLoading(false);
+    };
+
+    checkAccess();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, loading]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -82,7 +119,7 @@ const AdminLayout = () => {
     navigate("/");
   };
 
-  if (loading) {
+  if (loading || accessLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="animate-spin w-8 h-8 border-4 border-gold border-t-transparent rounded-full" />
@@ -91,6 +128,32 @@ const AdminLayout = () => {
   }
 
   if (!user) return null;
+
+  if (!hasAdminAccess) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <div className="max-w-md w-full rounded-2xl border border-border bg-card p-6 text-center shadow-sm space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center">
+            <Shield className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="font-display text-xl font-bold">Accès administrateur requis</h1>
+            <p className="text-sm text-muted-foreground font-body">
+              Votre session est active, mais ce compte n'a pas les droits admin/éditeur nécessaires pour ouvrir l'espace admin.
+            </p>
+          </div>
+          <div className="flex gap-2 justify-center">
+            <Link to="/">
+              <Button variant="outline" size="sm">Retour au site</Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary">Changer de compte</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const Sidebar = ({ onItemClick }: { onItemClick?: () => void }) => (
     <>
