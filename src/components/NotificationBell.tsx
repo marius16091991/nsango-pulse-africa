@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Bell, Check, Trash2, ExternalLink } from "lucide-react";
+import { Bell, Check, Trash2, ExternalLink, BellRing, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useWebPush } from "@/hooks/useWebPush";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -14,6 +15,7 @@ const typeColors: Record<string, string> = {
 
 const NotificationBell = ({ adminLink = false }: { adminLink?: boolean }) => {
   const { notifications, unreadCount, markRead, markAllRead, remove } = useNotifications();
+  const { supported, subscribed, loading, subscribe, unsubscribe } = useWebPush();
   const recent = notifications.slice(0, 8);
 
   return (
@@ -37,6 +39,19 @@ const NotificationBell = ({ adminLink = false }: { adminLink?: boolean }) => {
             </Button>
           )}
         </div>
+        {adminLink && supported && (
+          <div className="px-3 py-2 border-b bg-muted/30">
+            <Button
+              variant={subscribed ? "outline" : "default"}
+              size="sm"
+              className={`w-full h-8 text-xs gap-1.5 ${subscribed ? "" : "bg-gold hover:bg-gold-dark text-primary"}`}
+              disabled={loading}
+              onClick={subscribed ? unsubscribe : subscribe}
+            >
+              {subscribed ? <><BellOff className="w-3.5 h-3.5" /> Désactiver les push navigateur</> : <><BellRing className="w-3.5 h-3.5" /> Activer les push navigateur</>}
+            </Button>
+          </div>
+        )}
         <ScrollArea className="max-h-96">
           {recent.length === 0 ? (
             <p className="p-6 text-center text-xs text-muted-foreground font-body">Aucune notification</p>
