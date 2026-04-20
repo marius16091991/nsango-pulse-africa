@@ -185,15 +185,20 @@ const AdminLayout = () => {
                       to={item.path}
                       onClick={onItemClick}
                       className={cn(
-                        "group relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200",
+                        "group relative flex items-center gap-2.5 pl-4 pr-3 py-2 rounded-lg text-sm font-semibold transition-colors duration-200",
                         active
-                          ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold font-semibold shadow-sm"
+                          ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold shadow-sm"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                       )}
                     >
-                      {active && <span className="absolute left-0 top-2 bottom-2 w-1 bg-gold rounded-r" />}
-                      <item.icon className={cn("w-4 h-4 shrink-0 transition-transform", active && "scale-110")} />
-                      <span className="flex-1 font-body">{item.label}</span>
+                      <span
+                        className={cn(
+                          "absolute left-0 top-2 bottom-2 w-1 rounded-r transition-colors",
+                          active ? "bg-gold" : "bg-transparent"
+                        )}
+                      />
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span className="flex-1 font-body truncate">{item.label}</span>
                       {'badge' in item && item.badge && (
                         <span className="min-w-[18px] h-[18px] px-1 bg-destructive text-destructive-foreground rounded-full text-[10px] flex items-center justify-center font-bold">
                           {item.badge}
