@@ -15,8 +15,7 @@ const navGroups = [
     icon: Compass,
     items: [
       { label: "Accueil", href: "/", desc: "Le meilleur de Nsango" },
-      { label: "Actualités", href: "/actualites", desc: "Toutes les dernières nouvelles" },
-      { label: "Portraits", href: "/portraits", desc: "Visages qui inspirent" },
+      { label: "À propos", href: "/a-propos", desc: "Notre histoire & contact" },
     ],
   },
   {
@@ -24,6 +23,7 @@ const navGroups = [
     icon: Sparkles,
     items: [
       { label: "Business", href: "/business", desc: "Leaders & innovation" },
+      { label: "Portraits", href: "/portraits", desc: "Visages qui inspirent" },
       { label: "Interviews", href: "/interviews", desc: "Voix d'exception" },
     ],
   },
@@ -41,7 +41,7 @@ const navGroups = [
     items: [
       { label: "Podcasts", href: "/podcasts", desc: "L'audio Nsango" },
       { label: "Magazine", href: "/magazine", desc: "L'édition imprimée" },
-      { label: "À propos", href: "/a-propos", desc: "Notre histoire & contact" },
+      { label: "Actualités", href: "/actualites", desc: "Toutes les dernières nouvelles" },
     ],
   },
 ];
