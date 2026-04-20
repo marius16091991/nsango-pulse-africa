@@ -1,5 +1,7 @@
 import { Crown, Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import PremiumDialog from "@/components/PremiumDialog";
 
 const socials = [
   { label: "Facebook", icon: Facebook, href: "https://facebook.com/kibafood" },
@@ -26,7 +28,9 @@ const aboutLinks = [
   { label: "Connexion", to: "/auth" },
 ];
 
-const Footer = () => (
+const Footer = () => {
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  return (
   <footer className="gradient-dark text-primary-foreground">
     <div className="container mx-auto px-4 py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -79,13 +83,13 @@ const Footer = () => (
           <p className="text-sm text-primary-foreground/60 font-body mb-4">
             Accédez à tous nos contenus exclusifs et au magazine mensuel.
           </p>
-          <Link
-            to="/premium"
+          <button
+            onClick={() => setPremiumOpen(true)}
             className="gradient-gold px-6 py-2.5 rounded-lg text-sm font-semibold font-body uppercase tracking-wider inline-flex items-center gap-2 text-primary hover:opacity-90 transition-opacity"
           >
             <Crown className="w-4 h-4" />
             S'abonner
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -99,7 +103,9 @@ const Footer = () => (
         </div>
       </div>
     </div>
+    <PremiumDialog open={premiumOpen} onOpenChange={setPremiumOpen} />
   </footer>
-);
+  );
+};
 
 export default Footer;

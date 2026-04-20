@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import PremiumDialog from "@/components/PremiumDialog";
 
 // Graduated UX: Discover → Inspire → Live → Watch → Read → About
 const navGroups = [
@@ -51,6 +52,7 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [premiumOpen, setPremiumOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
   const location = useLocation();
 
@@ -152,12 +154,10 @@ const Header = () => {
               </Button>
             </Link>
           )}
-          <Link to="/premium">
-            <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
-              <Crown className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Premium</span>
-            </Button>
-          </Link>
+          <Button onClick={() => setPremiumOpen(true)} size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
+            <Crown className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Premium</span>
+          </Button>
         </div>
       </div>
 
@@ -221,6 +221,7 @@ const Header = () => {
           </nav>
         </div>
       )}
+      <PremiumDialog open={premiumOpen} onOpenChange={setPremiumOpen} />
     </header>
   );
 };
