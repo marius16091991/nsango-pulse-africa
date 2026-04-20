@@ -3,7 +3,7 @@ import { Check, Copy, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { getOrCreateVisitorId } from "@/lib/visitor";
+import { getVisitorId } from "@/lib/visitor";
 import {
   ALL_NETWORKS, NETWORKS, addUtm, buildShareUrl, canOpenComposer, slugify,
   type SocialNetwork,
@@ -26,7 +26,7 @@ const ShareBar = ({ title, articleId, url, className = "" }: ShareBarProps) => {
       await supabase.from("social_clicks").insert({
         network,
         article_id: articleId || null,
-        visitor_ip: getOrCreateVisitorId(),
+        visitor_ip: getVisitorId(),
         user_agent: navigator.userAgent.slice(0, 200),
         referer: document.referrer.slice(0, 200),
       });
