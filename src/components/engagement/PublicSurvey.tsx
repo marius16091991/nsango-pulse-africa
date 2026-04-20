@@ -32,10 +32,10 @@ const PublicSurvey = () => {
       if (!s) { setLoading(false); return; }
       setSurvey(s);
       const { data: q } = await supabase.from("survey_questions").select("*").eq("survey_id", s.id).order("sort_order");
-      const qs: Question[] = (q || []).map((row: any) => ({ ...row, options: Array.isArray(row.options) ? row.options : [] }));
+      const qs: Question[] = (q || []).map((row: any) => ({ ...row, options: Array.isArray(row.options) ? (row.options as unknown as Option[]) : [] }));
       // Si pas de questions multiples, on retombe sur le sondage simple
       if (qs.length === 0 && Array.isArray(s.options) && s.options.length) {
-        qs.push({ id: s.id, question: s.title, options: s.options, total_votes: s.total_votes, sort_order: 0 });
+        qs.push({ id: s.id, question: s.title, options: s.options as unknown as Option[], total_votes: s.total_votes, sort_order: 0 });
       }
       setQuestions(qs);
       // Vérifie les votes existants
