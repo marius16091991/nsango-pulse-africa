@@ -152,7 +152,7 @@ const Header = () => {
               </Button>
             </Link>
           )}
-          <Link to="/magazine">
+          <Link to="/premium">
             <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
               <Crown className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Premium</span>

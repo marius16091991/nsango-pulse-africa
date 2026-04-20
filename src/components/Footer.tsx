@@ -80,7 +80,7 @@ const Footer = () => (
             Accédez à tous nos contenus exclusifs et au magazine mensuel.
           </p>
           <Link
-            to="/magazine"
+            to="/premium"
             className="gradient-gold px-6 py-2.5 rounded-lg text-sm font-semibold font-body uppercase tracking-wider inline-flex items-center gap-2 text-primary hover:opacity-90 transition-opacity"
           >
             <Crown className="w-4 h-4" />
