@@ -70,9 +70,9 @@ const Header = () => {
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <Link to="/" className="flex items-center gap-2 shrink-0">
+        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Kibafood — Accueil">
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
-            <span className="text-gold">N</span>sango
+            <span className="text-gold">K</span>ibafood
           </h1>
           <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
             Magazine
@@ -152,10 +152,12 @@ const Header = () => {
               </Button>
             </Link>
           )}
-          <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
-            <Crown className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Premium</span>
-          </Button>
+          <Link to="/magazine">
+            <Button size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
+              <Crown className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Premium</span>
+            </Button>
+          </Link>
         </div>
       </div>
 
