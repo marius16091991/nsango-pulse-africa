@@ -4,6 +4,8 @@ import { ArrowLeft, Crown, Eye, Calendar, User, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ReactionBar from "@/components/engagement/ReactionBar";
+import CommentSection from "@/components/engagement/CommentSection";
 
 const ArticlePage = () => {
   const { id } = useParams();
@@ -88,6 +90,13 @@ const ArticlePage = () => {
             {article.content}
           </div>
         )}
+
+        <div className="mt-10 pt-6 border-t border-border">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">Que pensez-vous de cet article ?</p>
+          <ReactionBar targetType="article" targetId={article.id} />
+        </div>
+
+        <CommentSection articleId={article.id} />
       </article>
 
       <Footer />
