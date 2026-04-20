@@ -782,6 +782,139 @@ export type Database = {
         }
         Relationships: []
       }
+      social_accounts: {
+        Row: {
+          active: boolean
+          created_at: string
+          handle: string
+          icon: string | null
+          id: string
+          network: string
+          sort_order: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          handle?: string
+          icon?: string | null
+          id?: string
+          network: string
+          sort_order?: number
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          handle?: string
+          icon?: string | null
+          id?: string
+          network?: string
+          sort_order?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      social_clicks: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          id: string
+          network: string
+          post_id: string | null
+          referer: string | null
+          user_agent: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          network: string
+          post_id?: string | null
+          referer?: string | null
+          user_agent?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          network?: string
+          post_id?: string | null
+          referer?: string | null
+          user_agent?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_clicks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_posts: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          message: string
+          networks: string[]
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          updated_at: string
+          utm_campaign: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          message?: string
+          networks?: string[]
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+          utm_campaign?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          message?: string
+          networks?: string[]
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+          utm_campaign?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_requests: {
         Row: {
           amount: number
