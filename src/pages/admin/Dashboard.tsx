@@ -59,7 +59,7 @@ const Dashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold">Bonjour, {profile?.display_name || "Admin"} 👋</h1>
-          <p className="text-sm text-muted-foreground">Vue d'ensemble de Nsango Magazine</p>
+          <p className="text-sm text-muted-foreground">Vue d'ensemble de Kibafood</p>
         </div>
         <Link to="/admin/articles">
           <Button className="bg-gold hover:bg-gold-dark text-primary text-sm gap-1.5 shadow-sm">

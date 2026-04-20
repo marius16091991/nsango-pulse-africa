@@ -11,10 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
 const SettingsPage = () => {
-  const [siteName, setSiteName] = useState("Nsango Magazine");
+  const [siteName, setSiteName] = useState("Kibafood");
   const [slogan, setSlogan] = useState("Les visages qui inspirent l'Afrique");
-  const [seoDesc, setSeoDesc] = useState("Nsango Magazine — le premier magazine numérique premium dédié aux personnalités influentes du continent africain.");
-  const [contactEmail, setContactEmail] = useState("contact@nsangomagazine.com");
+  const [seoDesc, setSeoDesc] = useState("Kibafood — le premier magazine numérique premium dédié aux personnalités influentes du continent africain.");
+  const [contactEmail, setContactEmail] = useState("contact@kibafood.cm");
   const [language, setLanguage] = useState("fr");
   const [maintenance, setMaintenance] = useState(false);
   const [cache, setCache] = useState(true);

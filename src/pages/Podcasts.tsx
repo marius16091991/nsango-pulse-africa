@@ -20,7 +20,7 @@ const Podcasts = () => {
   const [current, setCurrent] = useState<Media | null>(null);
 
   useEffect(() => {
-    document.title = "Podcasts — Nsango Magazine";
+    document.title = "Podcasts — Kibafood";
     const load = async () => {
       const { data } = await supabase
         .from("media")
@@ -37,7 +37,7 @@ const Podcasts = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-28 lg:pt-32 pb-20 container mx-auto px-4">
-        <SectionTitle title="Podcasts" subtitle="Écouter Nsango partout" />
+        <SectionTitle title="Podcasts" subtitle="Écouter Kibafood partout" />
 
         {current && (
           <div className="bg-gradient-to-br from-gold/10 to-card border border-gold/30 rounded-xl p-6 mt-8 max-w-3xl mx-auto">
