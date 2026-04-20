@@ -8,13 +8,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import NotificationBell from "@/components/NotificationBell";
+import { useNotifications } from "@/hooks/useNotifications";
 
-const menuSections = [
+const buildMenuSections = (unread: number) => [
   {
     label: "Vue d'ensemble",
     items: [
       { label: "Tableau de bord", icon: LayoutDashboard, path: "/admin" },
-      { label: "Notifications", icon: Bell, path: "/admin/notifications", badge: 3 },
+      { label: "Notifications", icon: Bell, path: "/admin/notifications", badge: unread || undefined },
     ],
   },
   {
