@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown, Headphones, Calendar, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,14 @@ const Header = () => {
 
   const isActive = (href: string) =>
     href === "/" ? location.pathname === "/" : location.pathname.startsWith(href);
+
+  const getInitials = () => {
+    const name = profile?.display_name || user?.email || "";
+    if (!name) return "?";
+    const parts = name.trim().split(/[\s@._-]+/).filter(Boolean);
+    const initials = parts.slice(0, 2).map((p) => p[0]).join("");
+    return initials.toUpperCase() || name[0]?.toUpperCase() || "?";
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -137,13 +146,15 @@ const Header = () => {
             <Search className="w-5 h-5" />
           </button>
           {user ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <NotificationBell />
-              <Link to="/admin">
-                <Button variant="ghost" size="sm" className="text-xs uppercase tracking-wider font-body gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{profile?.display_name || "Admin"}</span>
-                </Button>
+              <Link to="/admin" aria-label="Espace admin" title={profile?.display_name || user.email || "Compte"}>
+                <Avatar className="h-8 w-8 border border-gold/40">
+                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
+                  <AvatarFallback className="bg-gold/15 text-gold text-xs font-semibold font-body">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
               </Link>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => signOut()}>
                 <LogOut className="w-4 h-4" />
