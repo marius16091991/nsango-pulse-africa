@@ -275,7 +275,7 @@ const Index = () => {
               { title: "Reportage : Les marchés émergents du continent", duration: "08:45" },
               { title: "Documentaire : L'entrepreneuriat féminin en Afrique de l'Est", duration: "25:12" },
             ].map((v, i) => (
-              <div key={i} className="group cursor-pointer">
+              <Link key={i} to="/videos" className="group cursor-pointer block">
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
                   <img src={i === 0 ? featuredImg : i === 1 ? businessImg : cultureImg} alt={v.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 gradient-hero opacity-50" />
@@ -287,7 +287,7 @@ const Index = () => {
                   <span className="absolute bottom-3 right-3 bg-primary/80 text-primary-foreground text-xs px-2 py-1 rounded font-body">{v.duration}</span>
                 </div>
                 <h3 className="font-display font-bold text-sm mt-3 group-hover:text-gold transition-colors">{v.title}</h3>
-              </div>
+              </Link>
             ))}
           </div>
           <div className="mt-4">
@@ -306,7 +306,7 @@ const Index = () => {
             { title: "Épisode 40 : L'art contemporain africain", guest: "El Anatsui", duration: "52 min" },
             { title: "Épisode 39 : Sport et business", guest: "Didier Drogba", duration: "41 min" },
           ].map((p, i) => (
-            <div key={i} className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:shadow-card transition-shadow cursor-pointer group">
+            <Link key={i} to="/podcasts" className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:shadow-card transition-shadow cursor-pointer group">
               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
                 <Headphones className="w-5 h-5 text-gold" />
               </div>
@@ -315,7 +315,7 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground font-body">Avec {p.guest} · {p.duration}</p>
               </div>
               <Play className="w-5 h-5 text-muted-foreground group-hover:text-gold transition-colors flex-shrink-0" />
-            </div>
+            </Link>
           ))}
         </div>
       </section>
