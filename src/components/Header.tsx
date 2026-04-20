@@ -72,7 +72,7 @@ const Header = () => {
 
         <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Nsango Magazine — Accueil">
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
-            <span className="text-gold">K</span>ibafood
+            <span className="text-gold">N</span>sango
           </h1>
           <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
             Magazine
