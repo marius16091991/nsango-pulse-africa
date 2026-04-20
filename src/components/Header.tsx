@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import PremiumDialog from "@/components/PremiumDialog";
+import NotificationBell from "@/components/NotificationBell";
 
 // Graduated UX: Discover → Inspire → Live → Watch → Read → About
 const navGroups = [
@@ -137,6 +138,7 @@ const Header = () => {
           </button>
           {user ? (
             <div className="flex items-center gap-2">
+              <NotificationBell />
               <Link to="/admin">
                 <Button variant="ghost" size="sm" className="text-xs uppercase tracking-wider font-body gap-1.5">
                   <User className="w-3.5 h-3.5" />
