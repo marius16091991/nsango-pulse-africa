@@ -17,7 +17,9 @@ export type Database = {
       ad_campaigns: {
         Row: {
           advertiser: string
+          auto_pause: boolean | null
           budget: number
+          click_url: string | null
           clicks: number
           created_at: string
           created_by: string | null
@@ -29,10 +31,14 @@ export type Database = {
           spent: number
           start_date: string | null
           status: string
+          target_categories: string[] | null
+          target_pages: string[] | null
         }
         Insert: {
           advertiser?: string
+          auto_pause?: boolean | null
           budget?: number
+          click_url?: string | null
           clicks?: number
           created_at?: string
           created_by?: string | null
@@ -44,10 +50,14 @@ export type Database = {
           spent?: number
           start_date?: string | null
           status?: string
+          target_categories?: string[] | null
+          target_pages?: string[] | null
         }
         Update: {
           advertiser?: string
+          auto_pause?: boolean | null
           budget?: number
+          click_url?: string | null
           clicks?: number
           created_at?: string
           created_by?: string | null
@@ -59,8 +69,99 @@ export type Database = {
           spent?: number
           start_date?: string | null
           status?: string
+          target_categories?: string[] | null
+          target_pages?: string[] | null
         }
         Relationships: []
+      }
+      ad_creatives: {
+        Row: {
+          active: boolean
+          alt: string | null
+          campaign_id: string
+          click_url: string | null
+          created_at: string
+          id: string
+          image_url: string
+          weight: number
+        }
+        Insert: {
+          active?: boolean
+          alt?: string | null
+          campaign_id: string
+          click_url?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          weight?: number
+        }
+        Update: {
+          active?: boolean
+          alt?: string | null
+          campaign_id?: string
+          click_url?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_creatives_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_events: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          creative_id: string | null
+          event_type: string
+          id: string
+          page_path: string | null
+          user_id: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          creative_id?: string | null
+          event_type: string
+          id?: string
+          page_path?: string | null
+          user_id?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          creative_id?: string | null
+          event_type?: string
+          id?: string
+          page_path?: string | null
+          user_id?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_events_creative_id_fkey"
+            columns: ["creative_id"]
+            isOneToOne: false
+            referencedRelation: "ad_creatives"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       articles: {
         Row: {
@@ -110,33 +211,148 @@ export type Database = {
         }
         Relationships: []
       }
+      banned_authors: {
+        Row: {
+          banned_by: string | null
+          created_at: string
+          email: string | null
+          id: string
+          ip: string | null
+          reason: string | null
+        }
+        Insert: {
+          banned_by?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          ip?: string | null
+          reason?: string | null
+        }
+        Update: {
+          banned_by?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          ip?: string | null
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string | null
+          voter_ip: string | null
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comment_reports: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          reporter_ip: string | null
+          reporter_user_id: string | null
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reporter_ip?: string | null
+          reporter_user_id?: string | null
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reporter_ip?: string | null
+          reporter_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           article_id: string
           author_email: string | null
+          author_ip: string | null
           author_name: string
           content: string
           created_at: string
           id: string
+          is_official: boolean
+          likes_count: number
+          mentions: string[] | null
+          parent_id: string | null
+          reports_count: number
           status: string
+          user_id: string | null
         }
         Insert: {
           article_id: string
           author_email?: string | null
+          author_ip?: string | null
           author_name: string
           content: string
           created_at?: string
           id?: string
+          is_official?: boolean
+          likes_count?: number
+          mentions?: string[] | null
+          parent_id?: string | null
+          reports_count?: number
           status?: string
+          user_id?: string | null
         }
         Update: {
           article_id?: string
           author_email?: string | null
+          author_ip?: string | null
           author_name?: string
           content?: string
           created_at?: string
           id?: string
+          is_official?: boolean
+          likes_count?: number
+          mentions?: string[] | null
+          parent_id?: string | null
+          reports_count?: number
           status?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -144,6 +360,13 @@ export type Database = {
             columns: ["article_id"]
             isOneToOne: false
             referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
             referencedColumns: ["id"]
           },
         ]
@@ -196,6 +419,24 @@ export type Database = {
           text_body?: string | null
           to_email?: string
           to_name?: string | null
+        }
+        Relationships: []
+      }
+      forbidden_words: {
+        Row: {
+          created_at: string
+          id: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          word?: string
         }
         Relationships: []
       }
@@ -511,6 +752,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          target_id: string
+          target_type: string
+          user_id: string | null
+          voter_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          target_id: string
+          target_type: string
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          target_id?: string
+          target_type?: string
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Relationships: []
+      }
       subscription_requests: {
         Row: {
           amount: number
@@ -592,33 +863,131 @@ export type Database = {
         }
         Relationships: []
       }
-      surveys: {
+      survey_questions: {
         Row: {
           created_at: string
-          created_by: string | null
-          end_date: string | null
           id: string
           options: Json
+          question: string
+          sort_order: number
+          survey_id: string
+          total_votes: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          options?: Json
+          question: string
+          sort_order?: number
+          survey_id: string
+          total_votes?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          options?: Json
+          question?: string
+          sort_order?: number
+          survey_id?: string
+          total_votes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_questions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_index: number
+          question_id: string | null
+          survey_id: string
+          user_id: string | null
+          voter_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_index: number
+          question_id?: string | null
+          survey_id: string
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_index?: number
+          question_id?: string | null
+          survey_id?: string
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "survey_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_votes_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surveys: {
+        Row: {
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_template: boolean | null
+          options: Json
+          start_date: string | null
           status: string
           title: string
           total_votes: number
         }
         Insert: {
+          category?: string | null
+          cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
           end_date?: string | null
           id?: string
+          is_template?: boolean | null
           options?: Json
+          start_date?: string | null
           status?: string
           title: string
           total_votes?: number
         }
         Update: {
+          category?: string | null
+          cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
           end_date?: string | null
           id?: string
+          is_template?: boolean | null
           options?: Json
+          start_date?: string | null
           status?: string
           title?: string
           total_votes?: number
