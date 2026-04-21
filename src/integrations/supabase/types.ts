@@ -272,6 +272,13 @@ export type Database = {
             foreignKeyName: "comment_likes_comment_id_fkey"
             columns: ["comment_id"]
             isOneToOne: false
+            referencedRelation: "comments_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
             referencedRelation: "comments_public"
             referencedColumns: ["id"]
           },
@@ -308,6 +315,13 @@ export type Database = {
             columns: ["comment_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_admin"
             referencedColumns: ["id"]
           },
           {
@@ -381,6 +395,13 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments_admin"
             referencedColumns: ["id"]
           },
           {
@@ -1231,6 +1252,52 @@ export type Database = {
       }
     }
     Views: {
+      comment_likes_admin: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string | null
+          user_id: string | null
+          voter_ip: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_likes_public: {
         Row: {
           comment_id: string | null
@@ -1261,6 +1328,93 @@ export type Database = {
           {
             foreignKeyName: "comment_likes_comment_id_fkey"
             columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments_admin: {
+        Row: {
+          article_id: string | null
+          author_email: string | null
+          author_ip: string | null
+          author_name: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_official: boolean | null
+          likes_count: number | null
+          mentions: string[] | null
+          parent_id: string | null
+          reports_count: number | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          author_email?: string | null
+          author_ip?: string | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_official?: boolean | null
+          likes_count?: number | null
+          mentions?: string[] | null
+          parent_id?: string | null
+          reports_count?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          author_email?: string | null
+          author_ip?: string | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_official?: boolean | null
+          likes_count?: number | null
+          mentions?: string[] | null
+          parent_id?: string | null
+          reports_count?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comments_public"
             referencedColumns: ["id"]
@@ -1326,10 +1480,47 @@ export type Database = {
             foreignKeyName: "comments_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
+            referencedRelation: "comments_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
             referencedRelation: "comments_public"
             referencedColumns: ["id"]
           },
         ]
+      }
+      reactions_admin: {
+        Row: {
+          created_at: string | null
+          emoji: string | null
+          id: string | null
+          target_id: string | null
+          target_type: string | null
+          user_id: string | null
+          voter_ip: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Relationships: []
       }
       reactions_public: {
         Row: {
@@ -1357,6 +1548,51 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      survey_votes_admin: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          option_index: number | null
+          question_id: string | null
+          survey_id: string | null
+          user_id: string | null
+          voter_ip: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          option_index?: number | null
+          question_id?: string | null
+          survey_id?: string | null
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          option_index?: number | null
+          question_id?: string | null
+          survey_id?: string | null
+          user_id?: string | null
+          voter_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "survey_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_votes_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       survey_votes_public: {
         Row: {
@@ -1402,6 +1638,19 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_comment_details: {
+        Args: { _comment_id: string }
+        Returns: {
+          article_id: string
+          author_email: string
+          author_ip: string
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          status: string
+        }[]
+      }
       enqueue_notification_email: {
         Args: {
           _description: string
