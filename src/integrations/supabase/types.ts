@@ -268,6 +268,13 @@ export type Database = {
             referencedRelation: "comments"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       comment_reports: {
@@ -301,6 +308,13 @@ export type Database = {
             columns: ["comment_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
             referencedColumns: ["id"]
           },
         ]
@@ -367,6 +381,13 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1210,7 +1231,175 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      comment_likes_public: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments_public: {
+        Row: {
+          article_id: string | null
+          author_name: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_official: boolean | null
+          likes_count: number | null
+          mentions: string[] | null
+          parent_id: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_official?: boolean | null
+          likes_count?: number | null
+          mentions?: string[] | null
+          parent_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_official?: boolean | null
+          likes_count?: number | null
+          mentions?: string[] | null
+          parent_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reactions_public: {
+        Row: {
+          created_at: string | null
+          emoji: string | null
+          id: string | null
+          target_id: string | null
+          target_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      survey_votes_public: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          option_index: number | null
+          question_id: string | null
+          survey_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          option_index?: number | null
+          question_id?: string | null
+          survey_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          option_index?: number | null
+          question_id?: string | null
+          survey_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "survey_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_votes_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       enqueue_notification_email: {
