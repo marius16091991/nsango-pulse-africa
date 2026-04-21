@@ -319,6 +319,9 @@ const UsersManager = () => {
                             <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "premium")} className="gap-2"><Crown className="w-4 h-4" /> Définir Lecteur premium</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "reader")} className="gap-2"><Users className="w-4 h-4" /> Définir Lecteur</DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => { setPwTarget(u); setNewPassword(""); }} className="gap-2"><KeyRound className="w-4 h-4" /> Modifier le mot de passe</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirmReset(u)} className="gap-2"><Mail className="w-4 h-4" /> Envoyer un lien de réinitialisation</DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => toggleActive(u)} className="gap-2">
                               {u.is_active ? <><Ban className="w-4 h-4" /> Désactiver</> : <><CheckCircle2 className="w-4 h-4" /> Réactiver</>}
                             </DropdownMenuItem>
@@ -351,6 +354,46 @@ const UsersManager = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={deleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modifier le mot de passe */}
+      <Dialog open={!!pwTarget} onOpenChange={(o) => { if (!o) { setPwTarget(null); setNewPassword(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le mot de passe</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Définir un nouveau mot de passe pour <strong>{pwTarget?.display_name || emails[pwTarget?.user_id || ""]?.email}</strong>. L'utilisateur ne sera pas notifié.
+            </p>
+            <div>
+              <Label>Nouveau mot de passe</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min. 8 caractères" minLength={8} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setPwTarget(null); setNewPassword(""); }}>Annuler</Button>
+            <Button onClick={updatePassword} disabled={busy === pwTarget?.user_id || newPassword.length < 8}>
+              {busy === pwTarget?.user_id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation envoi lien de réinitialisation */}
+      <AlertDialog open={!!confirmReset} onOpenChange={(o) => !o && setConfirmReset(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Envoyer un lien de réinitialisation ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Un email sera envoyé à <strong>{emails[confirmReset?.user_id || ""]?.email || confirmReset?.display_name}</strong> avec un lien sécurisé pour définir un nouveau mot de passe.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={sendResetEmail}>Envoyer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
