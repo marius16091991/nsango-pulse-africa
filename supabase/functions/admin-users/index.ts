@@ -109,6 +109,35 @@ Deno.serve(async (req) => {
         return json({ users: map });
       }
 
+      case "set_password": {
+        const { user_id, password } = body;
+        if (!user_id || !password) return json({ error: "user_id and password required" }, 400);
+        if (typeof password !== "string" || password.length < 8) {
+          return json({ error: "Le mot de passe doit contenir au moins 8 caractères" }, 400);
+        }
+        const { error } = await admin.auth.admin.updateUserById(user_id, { password });
+        if (error) return json({ error: error.message }, 400);
+        return json({ ok: true });
+      }
+
+      case "send_reset": {
+        const { user_id, redirect_to } = body;
+        if (!user_id) return json({ error: "user_id required" }, 400);
+        // Récupère l'email
+        const { data: target, error: getErr } = await admin.auth.admin.getUserById(user_id);
+        if (getErr || !target?.user?.email) return json({ error: getErr?.message || "User has no email" }, 400);
+        const email = target.user.email;
+        const redirectTo = (typeof redirect_to === "string" && redirect_to) || `${SUPABASE_URL}`;
+        // Génère un lien de récupération (email envoyé automatiquement par Supabase Auth)
+        const { error } = await admin.auth.admin.generateLink({
+          type: "recovery",
+          email,
+          options: { redirectTo },
+        });
+        if (error) return json({ error: error.message }, 400);
+        return json({ ok: true, email });
+      }
+
       default:
         return json({ error: "Unknown action" }, 400);
     }
