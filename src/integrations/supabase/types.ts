@@ -1638,6 +1638,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_ban_email: {
+        Args: { _email: string; _reason: string }
+        Returns: undefined
+      }
       admin_get_comment_details: {
         Args: { _comment_id: string }
         Returns: {
@@ -1650,6 +1654,31 @@ export type Database = {
           id: string
           status: string
         }[]
+      }
+      admin_list_comments: {
+        Args: never
+        Returns: {
+          article_id: string
+          author_email: string | null
+          author_ip: string | null
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          is_official: boolean
+          likes_count: number
+          mentions: string[] | null
+          parent_id: string | null
+          reports_count: number
+          status: string
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "comments"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       enqueue_notification_email: {
         Args: {
