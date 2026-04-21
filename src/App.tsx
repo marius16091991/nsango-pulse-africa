@@ -40,6 +40,11 @@ import ContentManager from "./pages/admin/ContentManager.tsx";
 import EmailsOutbox from "./pages/admin/EmailsOutbox.tsx";
 import SocialMedia from "./pages/admin/SocialMedia.tsx";
 import UserNotifications from "./pages/compte/Notifications.tsx";
+import CompteLayout from "./pages/compte/CompteLayout.tsx";
+import CompteOverview from "./pages/compte/Overview.tsx";
+import CompteProfil from "./pages/compte/Profil.tsx";
+import CompteSecurite from "./pages/compte/Securite.tsx";
+import CompteAbonnement from "./pages/compte/Abonnement.tsx";
 
 const queryClient = new QueryClient();
 
@@ -66,7 +71,13 @@ const App = () => (
             <Route path="/auth/reset-password" element={<ResetPassword />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/article/:id" element={<ArticlePage />} />
-            <Route path="/compte/notifications" element={<UserNotifications />} />
+            <Route path="/compte" element={<CompteLayout />}>
+              <Route index element={<CompteOverview />} />
+              <Route path="profil" element={<CompteProfil />} />
+              <Route path="notifications" element={<UserNotifications />} />
+              <Route path="securite" element={<CompteSecurite />} />
+              <Route path="abonnement" element={<CompteAbonnement />} />
+            </Route>
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminLayout />}>

@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Bell, Check, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Bell, Check, Trash2, ExternalLink, Loader2, Mail, Smartphone, MessageCircle } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +19,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const UserNotifications = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const { notifications, loading, markRead, markAllRead, remove, unreadCount } = useNotifications();
   const [prefs, setPrefs] = useState<any>({ in_app: true, email: true, push: false, types: {} });
   const [saving, setSaving] = useState(false);
@@ -45,80 +43,130 @@ const UserNotifications = () => {
     savePref({ types: { ...(prefs.types || {}), [key]: val } });
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-gold" /></div>;
-  if (!user) return (
-    <div className="min-h-screen flex flex-col">
-      <Header /><div className="flex-1 flex items-center justify-center">
-        <Card><CardContent className="p-8 text-center space-y-3">
-          <p>Connectez-vous pour gérer vos notifications.</p>
-          <Link to="/auth"><Button className="bg-gold hover:bg-gold-dark text-primary">Se connecter</Button></Link>
-        </CardContent></Card>
-      </div><Footer />
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="h-[calc(4rem+1.75rem)] lg:h-[calc(5rem+1.75rem)]" />
-      <div className="container mx-auto px-4 py-10 max-w-3xl space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-2"><Bell className="w-6 h-6 text-gold" /> Mes notifications</h1>
-          <p className="text-sm text-muted-foreground">{unreadCount} non lue{unreadCount > 1 ? "s" : ""}</p>
-        </div>
+    <div className="space-y-6">
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-card">
+        <CardContent className="p-6 md:p-8 space-y-5">
+          <div>
+            <h2 className="font-display text-xl font-bold flex items-center gap-2">
+              <Bell className="w-5 h-5 text-gold" /> Canaux de réception
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">Choisissez où vous souhaitez être averti.</p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <label className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-gold/30 transition-colors cursor-pointer">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-gold" />
+                <span className="text-sm font-body">Dans l'app</span>
+              </div>
+              <Switch checked={prefs.in_app} onCheckedChange={(v) => savePref({ in_app: v })} />
+            </label>
+            <label className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-gold/30 transition-colors cursor-pointer">
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-gold" />
+                <span className="text-sm font-body">Email</span>
+              </div>
+              <Switch checked={prefs.email} onCheckedChange={(v) => savePref({ email: v })} />
+            </label>
+            <label className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-gold/30 transition-colors cursor-pointer">
+              <div className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-gold" />
+                <span className="text-sm font-body">Push</span>
+              </div>
+              <Switch checked={prefs.push} onCheckedChange={(v) => savePref({ push: v })} />
+            </label>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardContent className="p-5 space-y-4">
-            <h2 className="font-display font-bold">Canaux de réception</h2>
-            <div className="flex items-center justify-between"><Label>Notifications dans l'app</Label><Switch checked={prefs.in_app} onCheckedChange={v => savePref({ in_app: v })} /></div>
-            <div className="flex items-center justify-between"><Label>Emails</Label><Switch checked={prefs.email} onCheckedChange={v => savePref({ email: v })} /></div>
-            <div className="flex items-center justify-between"><Label>Notifications push (navigateur)</Label><Switch checked={prefs.push} onCheckedChange={v => savePref({ push: v })} /></div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-5 space-y-3">
-            <h2 className="font-display font-bold">Types d'événements</h2>
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-card">
+        <CardContent className="p-6 md:p-8 space-y-3">
+          <h2 className="font-display text-xl font-bold">Types d'événements</h2>
+          <div className="divide-y divide-border">
             {Object.entries(TYPE_LABELS).map(([k, label]) => (
-              <div key={k} className="flex items-center justify-between">
+              <div key={k} className="flex items-center justify-between py-3">
                 <Label className="text-sm font-body">{label}</Label>
-                <Switch checked={prefs.types?.[k] !== false} onCheckedChange={v => toggleType(k, v)} />
+                <Switch checked={prefs.types?.[k] !== false} onCheckedChange={(v) => toggleType(k, v)} />
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex items-center justify-between">
-          <h2 className="font-display font-bold text-lg">Historique</h2>
-          {unreadCount > 0 && <Button size="sm" variant="outline" onClick={markAllRead}>Tout marquer lu</Button>}
-        </div>
+      <Card className="border-border bg-card/80 backdrop-blur-sm shadow-card">
+        <CardContent className="p-6 md:p-8 space-y-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <h2 className="font-display text-xl font-bold">Historique</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {unreadCount} non lue{unreadCount > 1 ? "s" : ""} sur {notifications.length}
+              </p>
+            </div>
+            {unreadCount > 0 && (
+              <Button size="sm" variant="outline" onClick={markAllRead} className="gap-2">
+                <Check className="w-3.5 h-3.5" /> Tout marquer lu
+              </Button>
+            )}
+          </div>
 
-        {loading ? (
-          <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-gold" /></div>
-        ) : notifications.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8 text-sm">Aucune notification</p>
-        ) : (
-          <div className="space-y-2">
-            {notifications.map(n => (
-              <Card key={n.id} className={!n.read ? "border-gold/30 bg-gold/5" : ""}>
-                <CardContent className="p-3 flex items-start gap-3">
+          {loading ? (
+            <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-gold" /></div>
+          ) : notifications.length === 0 ? (
+            <div className="text-center py-12 text-sm text-muted-foreground">
+              <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              Aucune notification pour le moment.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {notifications.map((n) => (
+                <div
+                  key={n.id}
+                  className={`group flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                    !n.read
+                      ? "border-gold/30 bg-gradient-to-r from-gold/5 to-transparent"
+                      : "border-border bg-background/50"
+                  }`}
+                >
+                  {!n.read && <span className="mt-1.5 h-2 w-2 rounded-full bg-gold shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold">{n.title}</p>
                     {n.description && <p className="text-xs text-muted-foreground mt-0.5">{n.description}</p>}
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-[10px] text-muted-foreground">{formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}</span>
-                      {n.link && <Link to={n.link} onClick={() => markRead(n.id)} className="text-[10px] text-gold hover:underline inline-flex items-center gap-0.5">Voir <ExternalLink className="w-2.5 h-2.5" /></Link>}
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                      </span>
+                      {n.link && (
+                        <Link
+                          to={n.link}
+                          onClick={() => markRead(n.id)}
+                          className="text-[10px] text-gold hover:underline inline-flex items-center gap-0.5"
+                        >
+                          Voir <ExternalLink className="w-2.5 h-2.5" />
+                        </Link>
+                      )}
                     </div>
                   </div>
-                  {!n.read && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => markRead(n.id)}><Check className="w-3.5 h-3.5" /></Button>}
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => remove(n.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-      <Footer />
+                  <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                    {!n.read && (
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => markRead(n.id)}>
+                        <Check className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      onClick={() => remove(n.id)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

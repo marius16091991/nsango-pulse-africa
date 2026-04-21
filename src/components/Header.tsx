@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown, Headphones, Calendar, Info } from "lucide-react";
+import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown, Headphones, LayoutDashboard, Shield, Bell, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { cn } from "@/lib/utils";
 import PremiumDialog from "@/components/PremiumDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -56,6 +58,7 @@ const Header = () => {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [premiumOpen, setPremiumOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
+  const { hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
   const location = useLocation();
 
   const isActive = (href: string) =>
@@ -148,17 +151,40 @@ const Header = () => {
           {user ? (
             <div className="flex items-center gap-1">
               <NotificationBell />
-              <Link to="/admin" aria-label="Espace admin" title={profile?.display_name || user.email || "Compte"}>
-                <Avatar className="h-8 w-8 border border-gold/40">
-                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
-                  <AvatarFallback className="bg-gold/15 text-gold text-xs font-semibold font-body">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => signOut()}>
-                <LogOut className="w-4 h-4" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-gold/50" aria-label="Mon compte">
+                    <Avatar className="h-8 w-8 border border-gold/40">
+                      {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
+                      <AvatarFallback className="bg-gold/15 text-gold text-xs font-semibold font-body">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-body">
+                    <p className="text-sm font-semibold truncate">{profile?.display_name || user.email}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-gold mt-0.5">{primaryRoleLabel}</p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild><Link to="/compte" className="gap-2"><LayoutDashboard className="w-4 h-4" /> Mon compte</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/compte/profil" className="gap-2"><UserCircle className="w-4 h-4" /> Profil</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/compte/notifications" className="gap-2"><Bell className="w-4 h-4" /> Notifications</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/compte/securite" className="gap-2"><Shield className="w-4 h-4" /> Sécurité</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/compte/abonnement" className="gap-2"><Crown className="w-4 h-4" /> Abonnement</Link></DropdownMenuItem>
+                  {hasAdminConsoleAccess && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild><Link to="/admin" className="gap-2 text-gold"><Sparkles className="w-4 h-4" /> Espace admin</Link></DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()} className="gap-2 text-destructive focus:text-destructive">
+                    <LogOut className="w-4 h-4" /> Se déconnecter
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : (
             <Link to="/auth">
@@ -219,9 +245,14 @@ const Header = () => {
             </div>
             {user ? (
               <>
-                <Link to="/admin" className="px-3 py-3 text-sm font-medium text-gold uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
-                  Espace Admin
+                <Link to="/compte" className="px-3 py-3 text-sm font-medium text-gold uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
+                  Mon compte
                 </Link>
+                {hasAdminConsoleAccess && (
+                  <Link to="/admin" className="px-3 py-3 text-sm font-medium text-foreground/80 uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
+                    Espace admin
+                  </Link>
+                )}
                 <button onClick={() => { signOut(); setMenuOpen(false); }} className="px-3 py-3 text-sm font-medium text-destructive uppercase tracking-wider font-body text-left">
                   Déconnexion
                 </button>
