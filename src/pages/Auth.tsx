@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,19 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { describeAuthPasswordError } from "@/lib/authErrors";
 
+/**
+ * Sécurise la cible de redirection post-login :
+ * - doit commencer par "/" (chemin interne)
+ * - ne doit pas commencer par "//" ou "/\\" (protocol-relative URL)
+ * - fallback vers /compte si invalide
+ */
+const sanitizeRedirect = (raw: string | null): string => {
+  if (!raw) return "/compte";
+  if (!raw.startsWith("/")) return "/compte";
+  if (raw.startsWith("//") || raw.startsWith("/\\")) return "/compte";
+  return raw;
+};
+
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [email, setEmail] = useState("");
@@ -18,10 +31,17 @@ const Auth = () => {
   const [displayName, setDisplayName] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/compte";
+  const redirectTo = sanitizeRedirect(searchParams.get("redirect"));
+
+  // Si déjà connecté → redirige immédiatement vers la cible visée
+  useEffect(() => {
+    if (!loading && user) {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [user, loading, redirectTo, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +66,7 @@ const Auth = () => {
           toast({ title: "Erreur de connexion", description: error.message, variant: "destructive" });
         } else {
           toast({ title: "Bienvenue !" });
-          navigate(redirectTo);
+          navigate(redirectTo, { replace: true });
         }
       } else {
         const { error } = await signUp(email, password, displayName);
