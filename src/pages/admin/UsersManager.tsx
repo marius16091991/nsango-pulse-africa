@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Users, Search, MoreHorizontal, Shield, Crown, Loader2, UserPlus, Ban, Trash2, CheckCircle2, ArrowUp, ArrowDown } from "lucide-react";
+import { Users, Search, MoreHorizontal, Shield, Crown, Loader2, UserPlus, Ban, Trash2, CheckCircle2, ArrowUp, ArrowDown, KeyRound, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,11 @@ const UsersManager = () => {
 
   // Create form
   const [form, setForm] = useState({ email: "", password: "", display_name: "", role: "reader" as Role, priority: 0 });
+
+  // Password management
+  const [pwTarget, setPwTarget] = useState<Profile | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmReset, setConfirmReset] = useState<Profile | null>(null);
 
   const callAdmin = async (body: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke("admin-users", { body });
@@ -133,6 +138,36 @@ const UsersManager = () => {
       await fetchData();
     } catch (e) {
       toast({ title: "Suppression échouée", description: (e as Error).message, variant: "destructive" });
+    } finally { setBusy(null); }
+  };
+
+  const updatePassword = async () => {
+    if (!pwTarget) return;
+    if (newPassword.length < 8) {
+      toast({ title: "Mot de passe trop court", description: "Minimum 8 caractères", variant: "destructive" });
+      return;
+    }
+    setBusy(pwTarget.user_id);
+    try {
+      await callAdmin({ action: "set_password", user_id: pwTarget.user_id, password: newPassword });
+      toast({ title: "Mot de passe modifié", description: pwTarget.display_name || emails[pwTarget.user_id]?.email });
+      setPwTarget(null);
+      setNewPassword("");
+    } catch (e) {
+      toast({ title: "Échec de la modification", description: (e as Error).message, variant: "destructive" });
+    } finally { setBusy(null); }
+  };
+
+  const sendResetEmail = async () => {
+    if (!confirmReset) return;
+    setBusy(confirmReset.user_id);
+    try {
+      const redirectTo = `${window.location.origin}/auth/reset-password`;
+      await callAdmin({ action: "send_reset", user_id: confirmReset.user_id, redirect_to: redirectTo });
+      toast({ title: "Email envoyé", description: `Un lien de réinitialisation a été envoyé à ${emails[confirmReset.user_id]?.email || "l'utilisateur"}` });
+      setConfirmReset(null);
+    } catch (e) {
+      toast({ title: "Envoi échoué", description: (e as Error).message, variant: "destructive" });
     } finally { setBusy(null); }
   };
 
