@@ -161,7 +161,7 @@ const MediasManager = () => {
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const s = new Set(prev);
-      s.has(id) ? s.delete(id) : s.add(id);
+      if (s.has(id)) s.delete(id); else s.add(id);
       return s;
     });
   };
