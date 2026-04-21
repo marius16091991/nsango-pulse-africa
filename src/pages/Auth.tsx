@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, LogIn, UserPlus, ArrowLeft, Mail, KeyRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { describeAuthPasswordError } from "@/lib/authErrors";
 
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -48,7 +49,12 @@ const Auth = () => {
       } else {
         const { error } = await signUp(email, password, displayName);
         if (error) {
-          toast({ title: "Erreur d'inscription", description: error.message, variant: "destructive" });
+          const info = describeAuthPasswordError(error);
+          toast({
+            title: info.isCompromised ? info.title : "Erreur d'inscription",
+            description: info.description,
+            variant: "destructive",
+          });
         } else {
           toast({ title: "Compte créé", description: "Vérifiez votre email pour confirmer votre compte." });
         }
