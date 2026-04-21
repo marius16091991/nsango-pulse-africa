@@ -47,7 +47,20 @@ const ResetPassword = () => {
     const { error } = await supabase.auth.updateUser({ password });
     setSubmitting(false);
     if (error) {
-      toast({ title: "Échec", description: error.message, variant: "destructive" });
+      const msg = (error.message || "").toLowerCase();
+      const isPwned =
+        msg.includes("pwned") ||
+        msg.includes("compromised") ||
+        msg.includes("data breach") ||
+        msg.includes("weak_password") ||
+        (error as any).code === "weak_password";
+      toast({
+        title: isPwned ? "Mot de passe non sécurisé" : "Échec",
+        description: isPwned
+          ? "Ce mot de passe figure dans une base de données de fuites publiques. Choisissez-en un autre, unique et jamais utilisé ailleurs."
+          : error.message,
+        variant: "destructive",
+      });
       return;
     }
     setDone(true);
