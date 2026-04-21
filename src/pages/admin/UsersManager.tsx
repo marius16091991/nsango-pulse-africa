@@ -11,8 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-type Role = "admin" | "editor" | "premium" | "reader";
+import { ROLE_LABELS, ROLE_BADGE_STYLES, type DbRole as Role } from "@/hooks/useUserRole";
 
 interface Profile {
   id: string;
@@ -29,19 +28,7 @@ interface UserRoleRow {
   priority: number;
 }
 
-const roleStyles: Record<Role, string> = {
-  admin: "bg-destructive/15 text-destructive border-destructive/30",
-  editor: "bg-primary/15 text-primary border-primary/30",
-  premium: "bg-gold/15 text-gold border-gold/30",
-  reader: "bg-muted text-muted-foreground border-border",
-};
-
-const ROLE_LABELS: Record<Role, string> = {
-  admin: "Admin",
-  editor: "Éditeur",
-  premium: "Premium",
-  reader: "Lecteur",
-};
+const roleStyles = ROLE_BADGE_STYLES;
 
 const UsersManager = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -186,9 +173,9 @@ const UsersManager = () => {
                   <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as Role })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="editor">Éditeur</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="admin">Administrateur</SelectItem>
+                      <SelectItem value="editor">Agent</SelectItem>
+                      <SelectItem value="premium">Lecteur premium</SelectItem>
                       <SelectItem value="reader">Lecteur</SelectItem>
                     </SelectContent>
                   </Select>
@@ -209,8 +196,8 @@ const UsersManager = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {([
           { label: "Total", value: profiles.length, icon: Users },
-          { label: "Admins", value: roleCount("admin"), icon: Shield },
-          { label: "Éditeurs", value: roleCount("editor"), icon: Crown },
+          { label: "Administrateurs", value: roleCount("admin"), icon: Shield },
+          { label: "Agents", value: roleCount("editor"), icon: Crown },
           { label: "Désactivés", value: profiles.filter((p) => !p.is_active).length, icon: Ban },
         ] as const).map((s) => (
           <Card key={s.label}>
@@ -233,9 +220,9 @@ const UsersManager = () => {
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les rôles</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="editor">Éditeur</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="admin">Administrateur</SelectItem>
+                <SelectItem value="editor">Agent</SelectItem>
+                <SelectItem value="premium">Lecteur premium</SelectItem>
                 <SelectItem value="reader">Lecteur</SelectItem>
               </SelectContent>
             </Select>
@@ -292,9 +279,9 @@ const UsersManager = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "admin")} className="gap-2"><Shield className="w-4 h-4" /> Définir Admin</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "editor")} className="gap-2"><Crown className="w-4 h-4" /> Définir Éditeur</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "premium")} className="gap-2"><Crown className="w-4 h-4" /> Définir Premium</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "admin")} className="gap-2"><Shield className="w-4 h-4" /> Définir Administrateur</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "editor")} className="gap-2"><Crown className="w-4 h-4" /> Définir Agent</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "premium")} className="gap-2"><Crown className="w-4 h-4" /> Définir Lecteur premium</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "reader")} className="gap-2"><Users className="w-4 h-4" /> Définir Lecteur</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => toggleActive(u)} className="gap-2">

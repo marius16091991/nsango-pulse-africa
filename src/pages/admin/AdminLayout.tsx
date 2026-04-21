@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
 import { useNotifications } from "@/hooks/useNotifications";
-import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
 
-const buildMenuSections = (unread: number) => [
+const buildMenuSections = (unread: number, isAdmin: boolean) => [
   {
     label: "Vue d'ensemble",
     items: [
       { label: "Tableau de bord", icon: LayoutDashboard, path: "/admin" },
       { label: "Notifications", icon: Bell, path: "/admin/notifications", badge: unread || undefined },
-      { label: "Emails sortants", icon: Mail, path: "/admin/emails" },
+      ...(isAdmin ? [{ label: "Emails sortants", icon: Mail, path: "/admin/emails" }] : []),
     ],
   },
   {
@@ -29,82 +29,74 @@ const buildMenuSections = (unread: number) => [
       { label: "Médias", icon: Image, path: "/admin/medias" },
       { label: "Publications", icon: Send, path: "/admin/publications" },
       { label: "Magazine", icon: Newspaper, path: "/admin/magazine" },
-      { label: "Pages & Sections", icon: Layers, path: "/admin/content" },
+      ...(isAdmin ? [{ label: "Pages & Sections", icon: Layers, path: "/admin/content" }] : []),
     ],
   },
-  {
-    label: "Engagement",
-    items: [
-      { label: "Sondages", icon: PieChart, path: "/admin/surveys" },
-      { label: "Commentaires", icon: MessageSquare, path: "/admin/comments" },
-      { label: "Campagnes pub", icon: Megaphone, path: "/admin/advertising" },
-      { label: "Réseaux sociaux", icon: Share2, path: "/admin/social" },
-    ],
-  },
-  {
-    label: "Communauté",
-    items: [
-      { label: "Abonnements", icon: Crown, path: "/admin/subscriptions" },
-      { label: "Utilisateurs", icon: Users, path: "/admin/users" },
-    ],
-  },
-  {
-    label: "Pilotage",
-    items: [
-      { label: "Analytiques", icon: BarChart3, path: "/admin/analytics" },
-      { label: "Diffusion", icon: Eye, path: "/admin/distribution" },
-      { label: "Paramètres", icon: Settings, path: "/admin/settings" },
-    ],
-  },
+  ...(isAdmin
+    ? [
+        {
+          label: "Engagement",
+          items: [
+            { label: "Sondages", icon: PieChart, path: "/admin/surveys" },
+            { label: "Commentaires", icon: MessageSquare, path: "/admin/comments" },
+            { label: "Campagnes pub", icon: Megaphone, path: "/admin/advertising" },
+            { label: "Réseaux sociaux", icon: Share2, path: "/admin/social" },
+          ],
+        },
+        {
+          label: "Communauté",
+          items: [
+            { label: "Abonnements", icon: Crown, path: "/admin/subscriptions" },
+            { label: "Utilisateurs", icon: Users, path: "/admin/users" },
+          ],
+        },
+        {
+          label: "Pilotage",
+          items: [
+            { label: "Analytiques", icon: BarChart3, path: "/admin/analytics" },
+            { label: "Diffusion", icon: Eye, path: "/admin/distribution" },
+            { label: "Paramètres", icon: Settings, path: "/admin/settings" },
+          ],
+        },
+      ]
+    : []),
+];
+
+/** Routes accessibles aux Agents (editor) en plus du dashboard. */
+const AGENT_ALLOWED_PATHS = [
+  "/admin",
+  "/admin/notifications",
+  "/admin/articles",
+  "/admin/videos",
+  "/admin/medias",
+  "/admin/publications",
+  "/admin/magazine",
 ];
 
 const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [accessLoading, setAccessLoading] = useState(true);
-  const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
   const { unreadCount } = useNotifications();
-  const menuSections = buildMenuSections(unreadCount);
+  const { loading: roleLoading, isAdmin, isAgent, hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
+  const menuSections = buildMenuSections(unreadCount, isAdmin);
+  const accessLoading = roleLoading;
+  const hasAdminAccess = hasAdminConsoleAccess;
+  const isAgentOnly = isAgent && !isAdmin;
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
 
+  // Redirige les Agents qui tentent d'accéder à une route interdite
   useEffect(() => {
-    let cancelled = false;
-
-    const checkAccess = async () => {
-      if (loading) return;
-
-      if (!user) {
-        if (!cancelled) {
-          setHasAdminAccess(false);
-          setAccessLoading(false);
-        }
-        return;
-      }
-
-      setAccessLoading(true);
-
-      const [{ data: isAdmin, error: adminError }, { data: isEditor, error: editorError }] = await Promise.all([
-        supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-        supabase.rpc("has_role", { _user_id: user.id, _role: "editor" }),
-      ]);
-
-      if (cancelled) return;
-
-      setHasAdminAccess(!adminError && !editorError && Boolean(isAdmin || isEditor));
-      setAccessLoading(false);
-    };
-
-    checkAccess();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, loading]);
+    if (!isAgentOnly) return;
+    const allowed = AGENT_ALLOWED_PATHS.some((p) =>
+      p === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(p)
+    );
+    if (!allowed) navigate("/admin", { replace: true });
+  }, [isAgentOnly, location.pathname, navigate]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -221,7 +213,7 @@ const AdminLayout = () => {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold truncate">{profile?.display_name || user.email}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{primaryRoleLabel}</p>
           </div>
         </div>
         <div className="flex gap-1">
