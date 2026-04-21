@@ -29,9 +29,10 @@ const CompteLayout = () => {
   useEffect(() => {
     if (loading) return;
     if (!user && !isOverview) {
-      navigate(`/auth?redirect=${encodeURIComponent(location.pathname)}`, { replace: true });
+      const fullPath = `${location.pathname}${location.search}${location.hash}`;
+      navigate(`/auth?redirect=${encodeURIComponent(fullPath)}`, { replace: true });
     }
-  }, [user, loading, isOverview, location.pathname, navigate]);
+  }, [user, loading, isOverview, location.pathname, location.search, location.hash, navigate]);
 
   if (loading) {
     return (
