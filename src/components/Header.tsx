@@ -245,9 +245,14 @@ const Header = () => {
             </div>
             {user ? (
               <>
-                <Link to="/admin" className="px-3 py-3 text-sm font-medium text-gold uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
-                  Espace Admin
+                <Link to="/compte" className="px-3 py-3 text-sm font-medium text-gold uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
+                  Mon compte
                 </Link>
+                {hasAdminConsoleAccess && (
+                  <Link to="/admin" className="px-3 py-3 text-sm font-medium text-foreground/80 uppercase tracking-wider font-body" onClick={() => setMenuOpen(false)}>
+                    Espace admin
+                  </Link>
+                )}
                 <button onClick={() => { signOut(); setMenuOpen(false); }} className="px-3 py-3 text-sm font-medium text-destructive uppercase tracking-wider font-body text-left">
                   Déconnexion
                 </button>
