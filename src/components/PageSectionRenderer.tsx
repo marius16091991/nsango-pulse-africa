@@ -45,6 +45,25 @@ export const PageSectionRenderer = ({ section }: { section: PageSection }) => {
 
     if (ids.length > 0) {
       supabase.from(table as any).select("*").in("id", ids).then(({ data }) => setItems(data || []));
+    } else if (section.section_key === "featured_articles" && section.section_type === "articles_grid") {
+      // "À la une" : le tout dernier article de chaque rubrique
+      supabase
+        .from("articles")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+        .limit(200)
+        .then(({ data }) => {
+          const seen = new Set<string>();
+          const latestPerCategory: any[] = [];
+          for (const a of data || []) {
+            if (!seen.has(a.category)) {
+              seen.add(a.category);
+              latestPerCategory.push(a);
+            }
+          }
+          setItems(latestPerCategory.slice(0, limit));
+        });
     } else if (section.section_type === "articles_grid" || section.section_type === "videos_grid") {
       let q = supabase.from(table as any).select("*").eq("status", "published");
       // Priority: explicit style.category > inferred from page slug
