@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
 import { useNotifications } from "@/hooks/useNotifications";
-import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
 
-const buildMenuSections = (unread: number) => [
+const buildMenuSections = (unread: number, isAdmin: boolean) => [
   {
     label: "Vue d'ensemble",
     items: [
       { label: "Tableau de bord", icon: LayoutDashboard, path: "/admin" },
       { label: "Notifications", icon: Bell, path: "/admin/notifications", badge: unread || undefined },
-      { label: "Emails sortants", icon: Mail, path: "/admin/emails" },
+      ...(isAdmin ? [{ label: "Emails sortants", icon: Mail, path: "/admin/emails" }] : []),
     ],
   },
   {
@@ -29,33 +29,48 @@ const buildMenuSections = (unread: number) => [
       { label: "Médias", icon: Image, path: "/admin/medias" },
       { label: "Publications", icon: Send, path: "/admin/publications" },
       { label: "Magazine", icon: Newspaper, path: "/admin/magazine" },
-      { label: "Pages & Sections", icon: Layers, path: "/admin/content" },
+      ...(isAdmin ? [{ label: "Pages & Sections", icon: Layers, path: "/admin/content" }] : []),
     ],
   },
-  {
-    label: "Engagement",
-    items: [
-      { label: "Sondages", icon: PieChart, path: "/admin/surveys" },
-      { label: "Commentaires", icon: MessageSquare, path: "/admin/comments" },
-      { label: "Campagnes pub", icon: Megaphone, path: "/admin/advertising" },
-      { label: "Réseaux sociaux", icon: Share2, path: "/admin/social" },
-    ],
-  },
-  {
-    label: "Communauté",
-    items: [
-      { label: "Abonnements", icon: Crown, path: "/admin/subscriptions" },
-      { label: "Utilisateurs", icon: Users, path: "/admin/users" },
-    ],
-  },
-  {
-    label: "Pilotage",
-    items: [
-      { label: "Analytiques", icon: BarChart3, path: "/admin/analytics" },
-      { label: "Diffusion", icon: Eye, path: "/admin/distribution" },
-      { label: "Paramètres", icon: Settings, path: "/admin/settings" },
-    ],
-  },
+  ...(isAdmin
+    ? [
+        {
+          label: "Engagement",
+          items: [
+            { label: "Sondages", icon: PieChart, path: "/admin/surveys" },
+            { label: "Commentaires", icon: MessageSquare, path: "/admin/comments" },
+            { label: "Campagnes pub", icon: Megaphone, path: "/admin/advertising" },
+            { label: "Réseaux sociaux", icon: Share2, path: "/admin/social" },
+          ],
+        },
+        {
+          label: "Communauté",
+          items: [
+            { label: "Abonnements", icon: Crown, path: "/admin/subscriptions" },
+            { label: "Utilisateurs", icon: Users, path: "/admin/users" },
+          ],
+        },
+        {
+          label: "Pilotage",
+          items: [
+            { label: "Analytiques", icon: BarChart3, path: "/admin/analytics" },
+            { label: "Diffusion", icon: Eye, path: "/admin/distribution" },
+            { label: "Paramètres", icon: Settings, path: "/admin/settings" },
+          ],
+        },
+      ]
+    : []),
+];
+
+/** Routes accessibles aux Agents (editor) en plus du dashboard. */
+const AGENT_ALLOWED_PATHS = [
+  "/admin",
+  "/admin/notifications",
+  "/admin/articles",
+  "/admin/videos",
+  "/admin/medias",
+  "/admin/publications",
+  "/admin/magazine",
 ];
 
 const AdminLayout = () => {
