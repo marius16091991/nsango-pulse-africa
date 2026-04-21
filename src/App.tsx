@@ -16,6 +16,7 @@ import Evenements from "./pages/Evenements.tsx";
 import Podcasts from "./pages/Podcasts.tsx";
 import APropos from "./pages/APropos.tsx";
 import Auth from "./pages/Auth.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import Premium from "./pages/Premium.tsx";
 import ArticlePage from "./pages/ArticlePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/podcasts" element={<Podcasts />} />
             <Route path="/a-propos" element={<APropos />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/reset-password" element={<ResetPassword />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/article/:id" element={<ArticlePage />} />
             <Route path="/compte/notifications" element={<UserNotifications />} />
