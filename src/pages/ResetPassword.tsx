@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, KeyRound, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
+import { describeAuthPasswordError } from "@/lib/authErrors";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -47,7 +48,8 @@ const ResetPassword = () => {
     const { error } = await supabase.auth.updateUser({ password });
     setSubmitting(false);
     if (error) {
-      toast({ title: "Échec", description: error.message, variant: "destructive" });
+      const info = describeAuthPasswordError(error);
+      toast({ title: info.title, description: info.description, variant: "destructive" });
       return;
     }
     setDone(true);

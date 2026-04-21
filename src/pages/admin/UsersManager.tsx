@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ROLE_LABELS, ROLE_BADGE_STYLES, type DbRole as Role } from "@/hooks/useUserRole";
+import { describeAuthPasswordError } from "@/lib/authErrors";
 
 interface Profile {
   id: string;
@@ -154,7 +155,12 @@ const UsersManager = () => {
       setPwTarget(null);
       setNewPassword("");
     } catch (e) {
-      toast({ title: "Échec de la modification", description: (e as Error).message, variant: "destructive" });
+      const info = describeAuthPasswordError(e as Error);
+      toast({
+        title: info.isCompromised ? info.title : "Échec de la modification",
+        description: info.description,
+        variant: "destructive",
+      });
     } finally { setBusy(null); }
   };
 
