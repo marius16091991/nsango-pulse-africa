@@ -23,7 +23,8 @@ type Step = "plan" | "form" | "instructions";
 
 const PremiumDialog = ({ open, onOpenChange }: PremiumDialogProps) => {
   const { user } = useAuth();
-  const { plans, settings, loading } = usePremiumConfig();
+  const { plans, settings: baseSettings, loading } = usePremiumConfig();
+  const [settings, setSettings] = useState<Record<string, string>>({});
   const [step, setStep] = useState<Step>("plan");
   const [selectedPlan, setSelectedPlan] = useState<PremiumPlan | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<typeof paymentMethods[number]["id"]>("orange_money");
@@ -33,7 +34,7 @@ const PremiumDialog = ({ open, onOpenChange }: PremiumDialogProps) => {
 
   const reset = () => {
     setStep("plan"); setSelectedPlan(null); setPaymentMethod("orange_money");
-    setReference(""); setForm({ full_name: "", email: "", phone: "" });
+    setReference(""); setForm({ full_name: "", email: "", phone: "" }); setSettings({});
   };
 
   const handleClose = (v: boolean) => { if (!v) reset(); onOpenChange(v); };
@@ -58,8 +59,18 @@ const PremiumDialog = ({ open, onOpenChange }: PremiumDialogProps) => {
       full_name: form.full_name.trim(), email: form.email.trim(), phone: form.phone.trim() || null,
       payment_method: paymentMethod, payment_reference: ref, status: "pending",
     });
+    if (error) { setSubmitting(false); toast.error("Erreur d'enregistrement", { description: error.message }); return; }
+
+    // Récupère les coordonnées de paiement de manière sécurisée (edge function)
+    const { data: payData, error: payErr } = await supabase.functions.invoke("get-payment-details", {
+      body: { reference: ref, email: form.email.trim(), payment_method: paymentMethod },
+    });
     setSubmitting(false);
-    if (error) { toast.error("Erreur d'enregistrement", { description: error.message }); return; }
+    if (payErr || !payData?.ok) {
+      toast.error("Impossible de charger les coordonnées de paiement", { description: payErr?.message || payData?.error });
+      return;
+    }
+    setSettings({ ...(baseSettings || {}), ...(payData.settings || {}) });
     setReference(ref); setStep("instructions");
     toast.success("Demande enregistrée");
   };

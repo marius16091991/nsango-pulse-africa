@@ -22,18 +22,17 @@ export const usePremiumConfig = () => {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [plansRes, settingsRes] = await Promise.all([
-      supabase.from("premium_plans").select("*").eq("active", true).order("sort_order"),
-      supabase.from("premium_settings").select("key,value"),
-    ]);
+    // ⚠️ Sécurité : premium_settings (PayPal/IBAN/Mobile Money) n'est plus lisible
+    // publiquement. Les coordonnées sont récupérées via l'edge function
+    // `get-payment-details` après soumission d'une demande.
+    // Ici on charge uniquement les plans + les libellés non sensibles via une RPC publique
+    // (ou on laisse les settings vides : le composant gère les valeurs absentes).
+    const plansRes = await supabase.from("premium_plans").select("*").eq("active", true).order("sort_order");
     if (plansRes.data) {
       setPlans(plansRes.data.map((p: any) => ({ ...p, features: Array.isArray(p.features) ? p.features : [] })));
     }
-    if (settingsRes.data) {
-      const map: PremiumSettings = {};
-      settingsRes.data.forEach((s: any) => { map[s.key] = s.value; });
-      setSettings(map);
-    }
+    // settings reste vide pour le public ; admin peut le charger via SettingsManager.
+    setSettings({});
     setLoading(false);
   };
 
