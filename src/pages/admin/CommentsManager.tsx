@@ -33,12 +33,16 @@ const CommentsManager = () => {
   const [newWord, setNewWord] = useState("");
 
   const fetchAll = async () => {
-    const [c, b, w] = await Promise.all([
-      supabase.from("comments").select("*, articles(title)").order("created_at", { ascending: false }),
+    // RPC sécurisée pour récupérer les commentaires avec emails/IP (admin only)
+    const [c, b, w, arts] = await Promise.all([
+      supabase.rpc("admin_list_comments"),
       supabase.from("banned_authors").select("*").order("created_at", { ascending: false }),
       supabase.from("forbidden_words").select("*").order("word"),
+      supabase.from("articles").select("id, title"),
     ]);
-    setComments(c.data || []); setBans(b.data || []); setWords(w.data || []);
+    const titleMap = new Map((arts.data || []).map((a: any) => [a.id, a.title]));
+    const enriched = (c.data || []).map((cm: any) => ({ ...cm, articles: { title: titleMap.get(cm.article_id) || "" } }));
+    setComments(enriched); setBans(b.data || []); setWords(w.data || []);
     setLoading(false);
   };
 
@@ -61,8 +65,10 @@ const CommentsManager = () => {
 
   const banAuthor = async (c: any) => {
     if (!c.author_email) { toast({ title: "Pas d'email pour bannir", variant: "destructive" }); return; }
-    await supabase.from("banned_authors").insert({ email: c.author_email, reason: `Auteur de "${c.content.slice(0, 30)}..."`, banned_by: user?.id });
-    await supabase.from("comments").update({ status: "rejected" }).eq("author_email", c.author_email);
+    await supabase.rpc("admin_ban_email", {
+      _email: c.author_email,
+      _reason: `Auteur de "${c.content.slice(0, 30)}..."`,
+    });
     toast({ title: `${c.author_name} banni` }); fetchAll();
   };
 
