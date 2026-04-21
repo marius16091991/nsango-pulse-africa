@@ -47,7 +47,19 @@ export const PageSectionRenderer = ({ section }: { section: PageSection }) => {
       supabase.from(table as any).select("*").in("id", ids).then(({ data }) => setItems(data || []));
     } else if (section.section_type === "articles_grid" || section.section_type === "videos_grid") {
       let q = supabase.from(table as any).select("*").eq("status", "published");
-      const cat = (style as any)?.category;
+      // Priority: explicit style.category > inferred from page slug
+      const explicitCat = (style as any)?.category;
+      const pageCategoryMap: Record<string, string> = {
+        business: "Business",
+        culture: "Culture",
+        interviews: "Interviews",
+        portraits: "Portraits",
+        magazine: "Magazine",
+        evenements: "Événements",
+        podcasts: "Podcasts",
+      };
+      const inferredCat = pageCategoryMap[section.page_slug];
+      const cat = explicitCat || inferredCat;
       if (cat && cat !== "all") q = q.eq("category", cat);
       q.order("created_at", { ascending: false }).limit(limit).then(({ data }) => setItems(data || []));
     }
