@@ -699,6 +699,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_active: boolean
           updated_at: string
           user_id: string
         }
@@ -708,6 +709,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_active?: boolean
           updated_at?: string
           user_id: string
         }
@@ -717,6 +719,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_active?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -1130,16 +1133,19 @@ export type Database = {
       user_roles: {
         Row: {
           id: string
+          priority: number
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           id?: string
+          priority?: number
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           id?: string
+          priority?: number
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
