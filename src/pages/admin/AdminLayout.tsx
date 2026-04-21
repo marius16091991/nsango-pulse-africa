@@ -75,51 +75,28 @@ const AGENT_ALLOWED_PATHS = [
 
 const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [accessLoading, setAccessLoading] = useState(true);
-  const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, signOut, loading } = useAuth();
   const { unreadCount } = useNotifications();
-  const menuSections = buildMenuSections(unreadCount);
+  const { loading: roleLoading, isAdmin, isAgent, hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
+  const menuSections = buildMenuSections(unreadCount, isAdmin);
+  const accessLoading = roleLoading;
+  const hasAdminAccess = hasAdminConsoleAccess;
+  const isAgentOnly = isAgent && !isAdmin;
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
 
+  // Redirige les Agents qui tentent d'accéder à une route interdite
   useEffect(() => {
-    let cancelled = false;
-
-    const checkAccess = async () => {
-      if (loading) return;
-
-      if (!user) {
-        if (!cancelled) {
-          setHasAdminAccess(false);
-          setAccessLoading(false);
-        }
-        return;
-      }
-
-      setAccessLoading(true);
-
-      const [{ data: isAdmin, error: adminError }, { data: isEditor, error: editorError }] = await Promise.all([
-        supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-        supabase.rpc("has_role", { _user_id: user.id, _role: "editor" }),
-      ]);
-
-      if (cancelled) return;
-
-      setHasAdminAccess(!adminError && !editorError && Boolean(isAdmin || isEditor));
-      setAccessLoading(false);
-    };
-
-    checkAccess();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, loading]);
+    if (!isAgentOnly) return;
+    const allowed = AGENT_ALLOWED_PATHS.some((p) =>
+      p === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(p)
+    );
+    if (!allowed) navigate("/admin", { replace: true });
+  }, [isAgentOnly, location.pathname, navigate]);
 
   useEffect(() => {
     setMobileOpen(false);
