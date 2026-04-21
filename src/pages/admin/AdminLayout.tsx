@@ -213,7 +213,7 @@ const AdminLayout = () => {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold truncate">{profile?.display_name || user.email}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{primaryRoleLabel}</p>
           </div>
         </div>
         <div className="flex gap-1">

@@ -11,8 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-type Role = "admin" | "editor" | "premium" | "reader";
+import { ROLE_LABELS, ROLE_BADGE_STYLES, type DbRole as Role } from "@/hooks/useUserRole";
 
 interface Profile {
   id: string;
@@ -29,19 +28,7 @@ interface UserRoleRow {
   priority: number;
 }
 
-const roleStyles: Record<Role, string> = {
-  admin: "bg-destructive/15 text-destructive border-destructive/30",
-  editor: "bg-primary/15 text-primary border-primary/30",
-  premium: "bg-gold/15 text-gold border-gold/30",
-  reader: "bg-muted text-muted-foreground border-border",
-};
-
-const ROLE_LABELS: Record<Role, string> = {
-  admin: "Admin",
-  editor: "Éditeur",
-  premium: "Premium",
-  reader: "Lecteur",
-};
+const roleStyles = ROLE_BADGE_STYLES;
 
 const UsersManager = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
