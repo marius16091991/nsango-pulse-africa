@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Eye, EyeOff, LogIn, UserPlus, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, ArrowLeft, Mail, KeyRound } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -23,7 +24,20 @@ const Auth = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      if (mode === "login") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        });
+        if (error) {
+          toast({ title: "Erreur", description: error.message, variant: "destructive" });
+        } else {
+          toast({
+            title: "Email envoyé",
+            description: "Si un compte existe pour cette adresse, vous recevrez un lien de réinitialisation.",
+          });
+          setMode("login");
+        }
+      } else if (mode === "login") {
         const { error } = await signIn(email, password);
         if (error) {
           toast({ title: "Erreur de connexion", description: error.message, variant: "destructive" });
@@ -56,7 +70,9 @@ const Auth = () => {
             <span className="text-gold">N</span>sango
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
-            {mode === "login" ? "Connectez-vous à votre espace" : "Créez votre compte"}
+            {mode === "login" && "Connectez-vous à votre espace"}
+            {mode === "register" && "Créez votre compte"}
+            {mode === "forgot" && "Récupérez l'accès à votre compte"}
           </p>
         </div>
 
@@ -85,45 +101,78 @@ const Auth = () => {
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
+                {mode === "forgot" && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Saisissez l'email de votre compte. Nous vous enverrons un lien sécurisé pour définir un nouveau mot de passe.
+                  </p>
+                )}
               </div>
-              <div>
-                <Label className="text-sm">Mot de passe</Label>
-                <div className="relative mt-1">
-                  <Input
-                    type={showPw ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowPw(!showPw)}
-                  >
-                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+              {mode !== "forgot" && (
+                <div>
+                  <Label className="text-sm">Mot de passe</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      type={showPw ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowPw(!showPw)}
+                    >
+                      {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {mode === "login" && (
+                    <button
+                      type="button"
+                      className="text-xs text-muted-foreground hover:text-gold transition-colors mt-2"
+                      onClick={() => setMode("forgot")}
+                    >
+                      Mot de passe oublié ?
+                    </button>
+                  )}
                 </div>
-              </div>
+              )}
 
               <Button
                 type="submit"
                 className="w-full bg-gold hover:bg-gold-dark text-primary font-semibold gap-2"
                 disabled={submitting}
               >
-                {mode === "login" ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                {submitting ? "Chargement..." : mode === "login" ? "Se connecter" : "Créer mon compte"}
+                {mode === "login" && <LogIn className="w-4 h-4" />}
+                {mode === "register" && <UserPlus className="w-4 h-4" />}
+                {mode === "forgot" && <Mail className="w-4 h-4" />}
+                {submitting
+                  ? "Chargement..."
+                  : mode === "login"
+                    ? "Se connecter"
+                    : mode === "register"
+                      ? "Créer mon compte"
+                      : "Envoyer le lien de réinitialisation"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <button
-                className="text-sm text-muted-foreground hover:text-gold transition-colors"
-                onClick={() => setMode(mode === "login" ? "register" : "login")}
-              >
-                {mode === "login" ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
-              </button>
+            <div className="mt-6 text-center space-y-2">
+              {mode === "forgot" ? (
+                <button
+                  className="text-sm text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1"
+                  onClick={() => setMode("login")}
+                >
+                  <ArrowLeft className="w-3 h-3" /> Retour à la connexion
+                </button>
+              ) : (
+                <button
+                  className="text-sm text-muted-foreground hover:text-gold transition-colors block w-full"
+                  onClick={() => setMode(mode === "login" ? "register" : "login")}
+                >
+                  {mode === "login" ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>

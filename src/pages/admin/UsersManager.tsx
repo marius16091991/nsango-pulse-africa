@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Users, Search, MoreHorizontal, Shield, Crown, Loader2, UserPlus, Ban, Trash2, CheckCircle2, ArrowUp, ArrowDown } from "lucide-react";
+import { Users, Search, MoreHorizontal, Shield, Crown, Loader2, UserPlus, Ban, Trash2, CheckCircle2, ArrowUp, ArrowDown, KeyRound, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,11 @@ const UsersManager = () => {
 
   // Create form
   const [form, setForm] = useState({ email: "", password: "", display_name: "", role: "reader" as Role, priority: 0 });
+
+  // Password management
+  const [pwTarget, setPwTarget] = useState<Profile | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmReset, setConfirmReset] = useState<Profile | null>(null);
 
   const callAdmin = async (body: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke("admin-users", { body });
@@ -133,6 +138,36 @@ const UsersManager = () => {
       await fetchData();
     } catch (e) {
       toast({ title: "Suppression échouée", description: (e as Error).message, variant: "destructive" });
+    } finally { setBusy(null); }
+  };
+
+  const updatePassword = async () => {
+    if (!pwTarget) return;
+    if (newPassword.length < 8) {
+      toast({ title: "Mot de passe trop court", description: "Minimum 8 caractères", variant: "destructive" });
+      return;
+    }
+    setBusy(pwTarget.user_id);
+    try {
+      await callAdmin({ action: "set_password", user_id: pwTarget.user_id, password: newPassword });
+      toast({ title: "Mot de passe modifié", description: pwTarget.display_name || emails[pwTarget.user_id]?.email });
+      setPwTarget(null);
+      setNewPassword("");
+    } catch (e) {
+      toast({ title: "Échec de la modification", description: (e as Error).message, variant: "destructive" });
+    } finally { setBusy(null); }
+  };
+
+  const sendResetEmail = async () => {
+    if (!confirmReset) return;
+    setBusy(confirmReset.user_id);
+    try {
+      const redirectTo = `${window.location.origin}/auth/reset-password`;
+      await callAdmin({ action: "send_reset", user_id: confirmReset.user_id, redirect_to: redirectTo });
+      toast({ title: "Email envoyé", description: `Un lien de réinitialisation a été envoyé à ${emails[confirmReset.user_id]?.email || "l'utilisateur"}` });
+      setConfirmReset(null);
+    } catch (e) {
+      toast({ title: "Envoi échoué", description: (e as Error).message, variant: "destructive" });
     } finally { setBusy(null); }
   };
 
@@ -284,6 +319,9 @@ const UsersManager = () => {
                             <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "premium")} className="gap-2"><Crown className="w-4 h-4" /> Définir Lecteur premium</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setRoleAndPriority(u.user_id, "reader")} className="gap-2"><Users className="w-4 h-4" /> Définir Lecteur</DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => { setPwTarget(u); setNewPassword(""); }} className="gap-2"><KeyRound className="w-4 h-4" /> Modifier le mot de passe</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setConfirmReset(u)} className="gap-2"><Mail className="w-4 h-4" /> Envoyer un lien de réinitialisation</DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => toggleActive(u)} className="gap-2">
                               {u.is_active ? <><Ban className="w-4 h-4" /> Désactiver</> : <><CheckCircle2 className="w-4 h-4" /> Réactiver</>}
                             </DropdownMenuItem>
@@ -316,6 +354,46 @@ const UsersManager = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={deleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modifier le mot de passe */}
+      <Dialog open={!!pwTarget} onOpenChange={(o) => { if (!o) { setPwTarget(null); setNewPassword(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le mot de passe</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Définir un nouveau mot de passe pour <strong>{pwTarget?.display_name || emails[pwTarget?.user_id || ""]?.email}</strong>. L'utilisateur ne sera pas notifié.
+            </p>
+            <div>
+              <Label>Nouveau mot de passe</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min. 8 caractères" minLength={8} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setPwTarget(null); setNewPassword(""); }}>Annuler</Button>
+            <Button onClick={updatePassword} disabled={busy === pwTarget?.user_id || newPassword.length < 8}>
+              {busy === pwTarget?.user_id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation envoi lien de réinitialisation */}
+      <AlertDialog open={!!confirmReset} onOpenChange={(o) => !o && setConfirmReset(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Envoyer un lien de réinitialisation ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Un email sera envoyé à <strong>{emails[confirmReset?.user_id || ""]?.email || confirmReset?.display_name}</strong> avec un lien sécurisé pour définir un nouveau mot de passe.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={sendResetEmail}>Envoyer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
