@@ -45,6 +45,8 @@ import CompteOverview from "./pages/compte/Overview.tsx";
 import CompteProfil from "./pages/compte/Profil.tsx";
 import CompteSecurite from "./pages/compte/Securite.tsx";
 import CompteAbonnement from "./pages/compte/Abonnement.tsx";
+import SeoManager from "./pages/admin/SeoManager.tsx";
+import SeoGlobal from "./components/seo/SeoGlobal";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <SeoGlobal />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/portraits" element={<Portraits />} />
@@ -99,6 +102,7 @@ const App = () => (
               <Route path="emails" element={<EmailsOutbox />} />
               <Route path="content" element={<ContentManager />} />
               <Route path="social" element={<SocialMedia />} />
+              <Route path="seo" element={<SeoManager />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
