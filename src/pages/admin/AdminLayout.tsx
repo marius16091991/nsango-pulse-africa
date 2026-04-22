@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Send, Megaphone, BarChart3, Users,
   Settings, Crown, LogOut, Bell, Eye, PieChart, Newspaper,
-  MessageSquare, Image, Menu, X, ChevronRight, User, Tv, Sparkles, Layers, Mail, Shield, Share2, Search
+  MessageSquare, Image, Menu, X, ChevronRight, User, Tv, Sparkles, Layers, Mail, Shield, Share2, Search, Layout
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -56,6 +56,7 @@ const buildMenuSections = (unread: number, isAdmin: boolean) => [
             { label: "Analytiques", icon: BarChart3, path: "/admin/analytics" },
             { label: "Diffusion", icon: Eye, path: "/admin/distribution" },
             { label: "SEO", icon: Search, path: "/admin/seo" },
+            { label: "Tête & pied de page", icon: Layout, path: "/admin/layout" },
             { label: "Paramètres", icon: Settings, path: "/admin/settings" },
           ],
         },
