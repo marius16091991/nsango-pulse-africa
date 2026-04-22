@@ -1,0 +1,1 @@
+CREATE POLICY "Public site settings viewable by everyone" ON public.premium_settings FOR SELECT TO anon, authenticated USING (category = 'site');
