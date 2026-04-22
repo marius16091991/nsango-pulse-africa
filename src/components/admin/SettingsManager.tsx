@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 
 interface Setting { key: string; value: string; label: string; category: string; }
 
-interface Props { category: "payment" | "text"; description: string; }
+interface Props { category: "payment" | "text" | "site" | "distribution"; description: string; }
 
 const SettingsManager = ({ category, description }: Props) => {
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -56,7 +56,12 @@ const SettingsManager = ({ category, description }: Props) => {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h3 className="font-display font-semibold">{category === "payment" ? "Coordonnées de paiement" : "Textes du modal"}</h3>
+          <h3 className="font-display font-semibold">
+            {category === "payment" ? "Coordonnées de paiement"
+              : category === "text" ? "Textes du modal"
+              : category === "site" ? "Informations du site"
+              : "Règles de distribution"}
+          </h3>
           <p className="text-xs text-muted-foreground font-body">{description}</p>
         </div>
         <Button onClick={saveAll} disabled={saving} className="bg-gold hover:bg-gold-dark text-primary gap-2">
