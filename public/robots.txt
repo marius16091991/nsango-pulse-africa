@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kibafood.cm/sitemap.xml
+Sitemap: https://nsangomagazine.com/sitemap.xml
