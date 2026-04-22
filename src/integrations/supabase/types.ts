@@ -482,6 +482,54 @@ export type Database = {
         }
         Relationships: []
       }
+      magazine_issues: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          downloads: number
+          id: string
+          issue_date: string | null
+          pdf_url: string | null
+          premium: boolean
+          sort_order: number
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          downloads?: number
+          id?: string
+          issue_date?: string | null
+          pdf_url?: string | null
+          premium?: boolean
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          downloads?: number
+          id?: string
+          issue_date?: string | null
+          pdf_url?: string | null
+          premium?: boolean
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string
