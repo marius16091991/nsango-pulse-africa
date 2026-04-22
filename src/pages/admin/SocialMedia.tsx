@@ -31,7 +31,7 @@ type Post = {
   created_at: string; articles?: { title: string } | null;
 };
 
-const SITE = typeof window !== "undefined" ? window.location.origin : "https://nsango-mag.lovable.app";
+const SITE = typeof window !== "undefined" ? window.location.origin : "https://nsangomagazine.com";
 
 const SocialMedia = () => {
   const { user } = useAuth();

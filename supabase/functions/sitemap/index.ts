@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     .select("key, value")
     .eq("key", "canonical_base_url")
     .maybeSingle();
-  const base = (settings?.value || "https://nsango-mag.lovable.app").replace(/\/$/, "");
+  const base = (settings?.value || "https://nsangomagazine.com").replace(/\/$/, "");
 
   // Static routes
   const staticRoutes = [
