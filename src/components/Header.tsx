@@ -172,7 +172,7 @@ const Header = () => {
           )}
           <Button onClick={() => setPremiumOpen(true)} size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
             <Crown className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Premium</span>
+            <span className="hidden sm:inline">{layout.header_premium_button_label}</span>
           </Button>
         </div>
       </div>
@@ -180,7 +180,7 @@ const Header = () => {
       {searchOpen && (
         <div className="border-t border-border px-4 py-3 animate-fade-in">
           <div className="container mx-auto">
-            <input type="text" placeholder="Rechercher des articles, personnalités..." className="w-full bg-secondary px-4 py-2.5 rounded-lg text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50" autoFocus />
+            <input type="text" placeholder={layout.header_search_placeholder} className="w-full bg-secondary px-4 py-2.5 rounded-lg text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50" autoFocus />
           </div>
         </div>
       )}
@@ -188,37 +188,43 @@ const Header = () => {
       {menuOpen && (
         <div className="lg:hidden border-t border-border bg-background animate-fade-in max-h-[80vh] overflow-y-auto">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
-            {navGroups.map((group) => (
-              <div key={group.label} className="mb-2">
-                <p className="flex items-center gap-1.5 px-3 mb-1 text-[10px] uppercase tracking-widest text-gold font-semibold">
-                  <group.icon className="w-3 h-3" /> {group.label}
-                </p>
-                {group.items.map((item) => (
+            {groups.map((group) => {
+              const GIcon = getLucideIcon(group.icon, Sparkles);
+              return (
+                <div key={group.key} className="mb-2">
+                  <p className="flex items-center gap-1.5 px-3 mb-1 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                    <GIcon className="w-3 h-3" /> {group.label || group.key}
+                  </p>
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={item.href}
+                      className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              );
+            })}
+            <div className="border-t border-border pt-2 mt-1">
+              {flatItems.map((item) => {
+                const FIcon = getLucideIcon(item.icon, Sparkles);
+                return (
                   <Link
-                    key={item.href}
+                    key={item.id}
                     to={item.href}
-                    className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body"
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg",
+                      item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary"
+                    )}
                     onClick={() => setMenuOpen(false)}
                   >
-                    {item.label}
+                    <FIcon className="w-4 h-4" /> {item.label}
                   </Link>
-                ))}
-              </div>
-            ))}
-            <div className="border-t border-border pt-2 mt-1">
-              {flatItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg",
-                    item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary"
-                  )}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <item.icon className="w-4 h-4" /> {item.label}
-                </Link>
-              ))}
+                );
+              })}
             </div>
             {user ? (
               <>
