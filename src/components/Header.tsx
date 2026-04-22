@@ -58,29 +58,33 @@ const Header = () => {
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
             <span className="text-gold">{firstLetter}</span>{restName}
           </h1>
-          <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
-            Magazine
-          </span>
+          {layout.header_tagline_label && (
+            <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
+              {layout.header_tagline_label}
+            </span>
+          )}
         </Link>
 
         {/* Desktop nav with grouped dropdowns */}
         <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center" onMouseLeave={() => setOpenGroup(null)}>
-          {navGroups.map((group) => (
-            <div key={group.label} className="relative" onMouseEnter={() => setOpenGroup(group.label)}>
+          {groups.map((group) => {
+            const GIcon = getLucideIcon(group.icon, Sparkles);
+            return (
+            <div key={group.key} className="relative" onMouseEnter={() => setOpenGroup(group.key)}>
               <button className={cn(
                 "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
-                openGroup === group.label ? "text-gold" : "text-foreground/80 hover:text-gold"
+                openGroup === group.key ? "text-gold" : "text-foreground/80 hover:text-gold"
               )}>
-                <group.icon className="w-3.5 h-3.5" />
-                {group.label}
+                <GIcon className="w-3.5 h-3.5" />
+                {group.label || group.key}
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
-              {openGroup === group.label && (
+              {openGroup === group.key && (
                 <div className="absolute top-full left-0 pt-1 animate-fade-in">
                   <div className="bg-background border border-border rounded-lg shadow-elegant min-w-[220px] p-2">
                     {group.items.map((item) => (
                       <Link
-                        key={item.href}
+                        key={item.id}
                         to={item.href}
                         onClick={() => setOpenGroup(null)}
                         className={cn(
@@ -89,28 +93,32 @@ const Header = () => {
                         )}
                       >
                         <p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>
-                        <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.desc}</p>
+                        {item.description && <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.description}</p>}
                       </Link>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          ))}
-          {flatItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
-                item.highlight && "text-gold",
-                isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
-              )}
-            >
-              <item.icon className="w-3.5 h-3.5" />
-              {item.label}
-            </Link>
-          ))}
+            );
+          })}
+          {flatItems.map((item) => {
+            const FIcon = getLucideIcon(item.icon, Sparkles);
+            return (
+              <Link
+                key={item.id}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
+                  item.highlight && "text-gold",
+                  isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
+                )}
+              >
+                <FIcon className="w-3.5 h-3.5" />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
