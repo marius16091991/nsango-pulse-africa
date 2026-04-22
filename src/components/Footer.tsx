@@ -4,6 +4,7 @@ import { useState } from "react";
 import PremiumDialog from "@/components/PremiumDialog";
 import { useSocialAccounts } from "@/hooks/useSocialAccounts";
 import { NETWORKS, type SocialNetwork } from "@/lib/socialShare";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const rubriques = [
   { label: "Portraits", to: "/portraits" },
@@ -25,19 +26,22 @@ const aboutLinks = [
 const Footer = () => {
   const [premiumOpen, setPremiumOpen] = useState(false);
   const { accounts } = useSocialAccounts(true);
+  const site = useSiteSettings();
+  const firstLetter = site.site_name.charAt(0) || "N";
+  const restName = site.site_name.slice(1) || "sango";
   return (
   <footer className="gradient-dark text-primary-foreground">
     <div className="container mx-auto px-4 py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <h3 className="font-display text-2xl font-bold mb-2">
-            <span className="text-gold">N</span>sango
+            <span className="text-gold">{firstLetter}</span>{restName}
           </h3>
           <p className="text-sm text-primary-foreground/60 font-body leading-relaxed">
-            Les visages qui inspirent l'Afrique. Le magazine digital premium dédié aux personnalités influentes du continent.
+            {site.site_slogan}. Le magazine digital premium dédié aux personnalités influentes du continent.
           </p>
-          <a href="mailto:contact@kibafood.cm" className="block text-xs text-primary-foreground/50 mt-4 hover:text-gold font-body">
-            contact@kibafood.cm
+          <a href={`mailto:${site.site_contact_email}`} className="block text-xs text-primary-foreground/50 mt-4 hover:text-gold font-body">
+            {site.site_contact_email}
           </a>
           <div className="flex gap-3 mt-6">
             {accounts.map((a) => {
@@ -95,7 +99,7 @@ const Footer = () => {
 
       <div className="border-t border-primary-foreground/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between gap-3 text-center sm:text-left">
         <p className="text-xs text-primary-foreground/40 font-body">
-          &copy; {new Date().getFullYear()} Nsango Magazine. Tous droits réservés.
+          &copy; {new Date().getFullYear()} {site.site_name}. Tous droits réservés.
         </p>
         <div className="flex gap-4 justify-center text-xs text-primary-foreground/40 font-body">
           <Link to="/a-propos" className="hover:text-gold">Mentions légales</Link>
