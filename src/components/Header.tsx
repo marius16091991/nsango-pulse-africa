@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown, Headphones, LayoutDashboard, Shield, Bell, UserCircle } from "lucide-react";
+import { Search, Menu, X, Crown, LogOut, Sparkles, ChevronDown, LayoutDashboard, Shield, Bell, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -10,48 +10,9 @@ import { cn } from "@/lib/utils";
 import PremiumDialog from "@/components/PremiumDialog";
 import NotificationBell from "@/components/NotificationBell";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-
-// Graduated UX: Discover → Inspire → Live → Watch → Read → About
-const navGroups = [
-  {
-    label: "Découvrir",
-    icon: Compass,
-    items: [
-      { label: "Accueil", href: "/", desc: "Le meilleur de Nsango" },
-      { label: "À propos", href: "/a-propos", desc: "Notre histoire & contact" },
-    ],
-  },
-  {
-    label: "Inspirer",
-    icon: Sparkles,
-    items: [
-      { label: "Business", href: "/business", desc: "Leaders & innovation" },
-      { label: "Portraits", href: "/portraits", desc: "Visages qui inspirent" },
-      { label: "Interviews", href: "/interviews", desc: "Voix d'exception" },
-    ],
-  },
-  {
-    label: "Vivre",
-    icon: Newspaper,
-    items: [
-      { label: "Culture", href: "/culture", desc: "Art, mode, lifestyle" },
-      { label: "Événements", href: "/evenements", desc: "Agenda & rendez-vous" },
-    ],
-  },
-  {
-    label: "Écouter & Lire",
-    icon: Headphones,
-    items: [
-      { label: "Podcasts", href: "/podcasts", desc: "L'audio Nsango" },
-      { label: "Magazine", href: "/magazine", desc: "L'édition imprimée" },
-      { label: "Actualités", href: "/actualites", desc: "Toutes les dernières nouvelles" },
-    ],
-  },
-];
-
-const flatItems = [
-  { label: "Nsango TV", href: "/videos", icon: Tv, highlight: true },
-];
+import { useLayoutSettings } from "@/hooks/useLayoutSettings";
+import { useNavLinks, groupNavLinks } from "@/hooks/useNavLinks";
+import { getLucideIcon } from "@/lib/lucideIcon";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,6 +23,10 @@ const Header = () => {
   const { hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
   const location = useLocation();
   const site = useSiteSettings();
+  const layout = useLayoutSettings();
+  const { links: headerLinks } = useNavLinks("header");
+  const groups = groupNavLinks(headerLinks).filter(g => g.key !== "flat" && g.items.length > 0);
+  const flatItems = headerLinks.filter(l => l.column_key === "flat");
   const firstLetter = site.site_name.charAt(0) || "N";
   const restName = site.site_name.slice(1) || "sango";
 
@@ -80,7 +45,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="gradient-dark px-4 py-1.5 text-center">
         <p className="text-xs tracking-[0.2em] uppercase text-gold font-body">
-          {site.site_slogan}
+          {layout.header_ribbon_text || site.site_slogan}
         </p>
       </div>
 
