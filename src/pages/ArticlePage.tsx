@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import ReactionBar from "@/components/engagement/ReactionBar";
 import CommentSection from "@/components/engagement/CommentSection";
 import ShareBar from "@/components/social/ShareBar";
+import SeoHead from "@/components/seo/SeoHead";
 
 const ArticlePage = () => {
   const { id } = useParams();
@@ -48,6 +49,25 @@ const ArticlePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        targetType="article"
+        targetId={article.id}
+        title={article.title}
+        description={article.summary}
+        image={article.cover_url}
+        type="article"
+        jsonld={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.summary,
+          image: article.cover_url ? [article.cover_url] : undefined,
+          datePublished: article.created_at,
+          dateModified: article.updated_at,
+          author: { "@type": "Person", name: article.author_name || "Nsango Magazine" },
+          articleSection: article.category,
+        }}
+      />
       <Header />
       <div className="h-[calc(4rem+1.75rem)] lg:h-[calc(5rem+1.75rem)]" />
 
