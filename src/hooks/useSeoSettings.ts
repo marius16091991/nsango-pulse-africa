@@ -9,7 +9,7 @@ const DEFAULTS: SeoSettings = {
   default_description: "Nsango Magazine — magazine numérique premium dédié aux personnalités influentes du continent africain.",
   default_keywords: "",
   default_og_image: "",
-  canonical_base_url: "https://nsango-mag.lovable.app",
+  canonical_base_url: "https://nsangomagazine.com",
   default_robots: "index,follow",
   default_language: "fr-FR",
   twitter_handle: "@nsangomagazine",
@@ -21,7 +21,7 @@ const DEFAULTS: SeoSettings = {
   bing_verification: "",
   organization_name: "Nsango Magazine",
   organization_logo: "",
-  organization_url: "https://nsango-mag.lovable.app",
+  organization_url: "https://nsangomagazine.com",
   organization_sameas: "[]",
   robots_txt: "",
 };

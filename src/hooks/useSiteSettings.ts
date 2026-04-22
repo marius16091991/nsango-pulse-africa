@@ -11,7 +11,7 @@ export interface SiteSettings {
 const DEFAULTS: SiteSettings = {
   site_name: "Nsango Magazine",
   site_slogan: "Les visages qui inspirent l'Afrique",
-  site_contact_email: "contact@kibafood.cm",
+  site_contact_email: "contact@nsangomagazine.com",
   site_seo_description: "",
 };
 
@@ -47,7 +47,7 @@ export const useSiteSettings = (): SiteSettings => {
     listeners.add(update);
     fetchSettings().then(update);
     const channel = supabase
-      .channel("site-settings")
+      .channel(`site-settings-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "premium_settings", filter: "category=eq.site" },

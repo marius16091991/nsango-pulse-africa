@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     .in("key", ["robots_txt", "canonical_base_url"]);
 
   const map = new Map<string, string>((data || []).map((r: any) => [r.key, r.value]));
-  const base = (map.get("canonical_base_url") || "https://nsango-mag.lovable.app").replace(/\/$/, "");
+  const base = (map.get("canonical_base_url") || "https://nsangomagazine.com").replace(/\/$/, "");
   let body = map.get("robots_txt") || `User-agent: *\nAllow: /\n\nSitemap: ${base}/sitemap.xml`;
 
   // Garantir au moins une directive Sitemap
