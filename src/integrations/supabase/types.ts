@@ -560,6 +560,57 @@ export type Database = {
         }
         Relationships: []
       }
+      nav_links: {
+        Row: {
+          column_key: string
+          created_at: string
+          description: string | null
+          group_icon: string | null
+          group_label: string
+          highlight: boolean
+          href: string
+          icon: string | null
+          id: string
+          label: string
+          location: string
+          sort_order: number
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          column_key?: string
+          created_at?: string
+          description?: string | null
+          group_icon?: string | null
+          group_label?: string
+          highlight?: boolean
+          href?: string
+          icon?: string | null
+          id?: string
+          label: string
+          location: string
+          sort_order?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          column_key?: string
+          created_at?: string
+          description?: string | null
+          group_icon?: string | null
+          group_label?: string
+          highlight?: boolean
+          href?: string
+          icon?: string | null
+          id?: string
+          label?: string
+          location?: string
+          sort_order?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           email: boolean

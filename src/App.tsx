@@ -46,6 +46,7 @@ import CompteProfil from "./pages/compte/Profil.tsx";
 import CompteSecurite from "./pages/compte/Securite.tsx";
 import CompteAbonnement from "./pages/compte/Abonnement.tsx";
 import SeoManager from "./pages/admin/SeoManager.tsx";
+import LayoutManager from "./pages/admin/LayoutManager.tsx";
 import SeoGlobal from "./components/seo/SeoGlobal";
 
 const queryClient = new QueryClient();
@@ -103,6 +104,7 @@ const App = () => (
               <Route path="content" element={<ContentManager />} />
               <Route path="social" element={<SocialMedia />} />
               <Route path="seo" element={<SeoManager />} />
+              <Route path="layout" element={<LayoutManager />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

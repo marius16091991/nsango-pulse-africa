@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Menu, X, Crown, User, LogOut, Tv, Sparkles, Newspaper, Compass, ChevronDown, Headphones, LayoutDashboard, Shield, Bell, UserCircle } from "lucide-react";
+import { Search, Menu, X, Crown, LogOut, Sparkles, ChevronDown, LayoutDashboard, Shield, Bell, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -10,48 +10,9 @@ import { cn } from "@/lib/utils";
 import PremiumDialog from "@/components/PremiumDialog";
 import NotificationBell from "@/components/NotificationBell";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-
-// Graduated UX: Discover → Inspire → Live → Watch → Read → About
-const navGroups = [
-  {
-    label: "Découvrir",
-    icon: Compass,
-    items: [
-      { label: "Accueil", href: "/", desc: "Le meilleur de Nsango" },
-      { label: "À propos", href: "/a-propos", desc: "Notre histoire & contact" },
-    ],
-  },
-  {
-    label: "Inspirer",
-    icon: Sparkles,
-    items: [
-      { label: "Business", href: "/business", desc: "Leaders & innovation" },
-      { label: "Portraits", href: "/portraits", desc: "Visages qui inspirent" },
-      { label: "Interviews", href: "/interviews", desc: "Voix d'exception" },
-    ],
-  },
-  {
-    label: "Vivre",
-    icon: Newspaper,
-    items: [
-      { label: "Culture", href: "/culture", desc: "Art, mode, lifestyle" },
-      { label: "Événements", href: "/evenements", desc: "Agenda & rendez-vous" },
-    ],
-  },
-  {
-    label: "Écouter & Lire",
-    icon: Headphones,
-    items: [
-      { label: "Podcasts", href: "/podcasts", desc: "L'audio Nsango" },
-      { label: "Magazine", href: "/magazine", desc: "L'édition imprimée" },
-      { label: "Actualités", href: "/actualites", desc: "Toutes les dernières nouvelles" },
-    ],
-  },
-];
-
-const flatItems = [
-  { label: "Nsango TV", href: "/videos", icon: Tv, highlight: true },
-];
+import { useLayoutSettings } from "@/hooks/useLayoutSettings";
+import { useNavLinks, groupNavLinks } from "@/hooks/useNavLinks";
+import { getLucideIcon } from "@/lib/lucideIcon";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,6 +23,10 @@ const Header = () => {
   const { hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
   const location = useLocation();
   const site = useSiteSettings();
+  const layout = useLayoutSettings();
+  const { links: headerLinks } = useNavLinks("header");
+  const groups = groupNavLinks(headerLinks).filter(g => g.key !== "flat" && g.items.length > 0);
+  const flatItems = headerLinks.filter(l => l.column_key === "flat");
   const firstLetter = site.site_name.charAt(0) || "N";
   const restName = site.site_name.slice(1) || "sango";
 
@@ -80,7 +45,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="gradient-dark px-4 py-1.5 text-center">
         <p className="text-xs tracking-[0.2em] uppercase text-gold font-body">
-          {site.site_slogan}
+          {layout.header_ribbon_text || site.site_slogan}
         </p>
       </div>
 
@@ -93,29 +58,33 @@ const Header = () => {
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
             <span className="text-gold">{firstLetter}</span>{restName}
           </h1>
-          <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
-            Magazine
-          </span>
+          {layout.header_tagline_label && (
+            <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
+              {layout.header_tagline_label}
+            </span>
+          )}
         </Link>
 
         {/* Desktop nav with grouped dropdowns */}
         <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center" onMouseLeave={() => setOpenGroup(null)}>
-          {navGroups.map((group) => (
-            <div key={group.label} className="relative" onMouseEnter={() => setOpenGroup(group.label)}>
+          {groups.map((group) => {
+            const GIcon = getLucideIcon(group.icon, Sparkles);
+            return (
+            <div key={group.key} className="relative" onMouseEnter={() => setOpenGroup(group.key)}>
               <button className={cn(
                 "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
-                openGroup === group.label ? "text-gold" : "text-foreground/80 hover:text-gold"
+                openGroup === group.key ? "text-gold" : "text-foreground/80 hover:text-gold"
               )}>
-                <group.icon className="w-3.5 h-3.5" />
-                {group.label}
+                <GIcon className="w-3.5 h-3.5" />
+                {group.label || group.key}
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
-              {openGroup === group.label && (
+              {openGroup === group.key && (
                 <div className="absolute top-full left-0 pt-1 animate-fade-in">
                   <div className="bg-background border border-border rounded-lg shadow-elegant min-w-[220px] p-2">
                     {group.items.map((item) => (
                       <Link
-                        key={item.href}
+                        key={item.id}
                         to={item.href}
                         onClick={() => setOpenGroup(null)}
                         className={cn(
@@ -124,28 +93,32 @@ const Header = () => {
                         )}
                       >
                         <p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>
-                        <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.desc}</p>
+                        {item.description && <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.description}</p>}
                       </Link>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          ))}
-          {flatItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
-                item.highlight && "text-gold",
-                isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
-              )}
-            >
-              <item.icon className="w-3.5 h-3.5" />
-              {item.label}
-            </Link>
-          ))}
+            );
+          })}
+          {flatItems.map((item) => {
+            const FIcon = getLucideIcon(item.icon, Sparkles);
+            return (
+              <Link
+                key={item.id}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
+                  item.highlight && "text-gold",
+                  isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
+                )}
+              >
+                <FIcon className="w-3.5 h-3.5" />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -199,7 +172,7 @@ const Header = () => {
           )}
           <Button onClick={() => setPremiumOpen(true)} size="sm" className="bg-gold hover:bg-gold-dark text-primary font-semibold text-xs uppercase tracking-wider font-body gap-1">
             <Crown className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Premium</span>
+            <span className="hidden sm:inline">{layout.header_premium_button_label}</span>
           </Button>
         </div>
       </div>
@@ -207,7 +180,7 @@ const Header = () => {
       {searchOpen && (
         <div className="border-t border-border px-4 py-3 animate-fade-in">
           <div className="container mx-auto">
-            <input type="text" placeholder="Rechercher des articles, personnalités..." className="w-full bg-secondary px-4 py-2.5 rounded-lg text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50" autoFocus />
+            <input type="text" placeholder={layout.header_search_placeholder} className="w-full bg-secondary px-4 py-2.5 rounded-lg text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50" autoFocus />
           </div>
         </div>
       )}
@@ -215,37 +188,43 @@ const Header = () => {
       {menuOpen && (
         <div className="lg:hidden border-t border-border bg-background animate-fade-in max-h-[80vh] overflow-y-auto">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
-            {navGroups.map((group) => (
-              <div key={group.label} className="mb-2">
-                <p className="flex items-center gap-1.5 px-3 mb-1 text-[10px] uppercase tracking-widest text-gold font-semibold">
-                  <group.icon className="w-3 h-3" /> {group.label}
-                </p>
-                {group.items.map((item) => (
+            {groups.map((group) => {
+              const GIcon = getLucideIcon(group.icon, Sparkles);
+              return (
+                <div key={group.key} className="mb-2">
+                  <p className="flex items-center gap-1.5 px-3 mb-1 text-[10px] uppercase tracking-widest text-gold font-semibold">
+                    <GIcon className="w-3 h-3" /> {group.label || group.key}
+                  </p>
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={item.href}
+                      className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              );
+            })}
+            <div className="border-t border-border pt-2 mt-1">
+              {flatItems.map((item) => {
+                const FIcon = getLucideIcon(item.icon, Sparkles);
+                return (
                   <Link
-                    key={item.href}
+                    key={item.id}
                     to={item.href}
-                    className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body"
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg",
+                      item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary"
+                    )}
                     onClick={() => setMenuOpen(false)}
                   >
-                    {item.label}
+                    <FIcon className="w-4 h-4" /> {item.label}
                   </Link>
-                ))}
-              </div>
-            ))}
-            <div className="border-t border-border pt-2 mt-1">
-              {flatItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg",
-                    item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary"
-                  )}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <item.icon className="w-4 h-4" /> {item.label}
-                </Link>
-              ))}
+                );
+              })}
             </div>
             {user ? (
               <>

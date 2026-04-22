@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 
 interface Setting { key: string; value: string; label: string; category: string; }
 
-interface Props { category: "payment" | "text" | "site" | "distribution"; description: string; }
+interface Props { category: "payment" | "text" | "site" | "distribution" | "layout"; description: string; }
 
 const SettingsManager = ({ category, description }: Props) => {
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -60,6 +60,7 @@ const SettingsManager = ({ category, description }: Props) => {
             {category === "payment" ? "Coordonnées de paiement"
               : category === "text" ? "Textes du modal"
               : category === "site" ? "Informations du site"
+              : category === "layout" ? "Textes du header & footer"
               : "Règles de distribution"}
           </h3>
           <p className="text-xs text-muted-foreground font-body">{description}</p>
