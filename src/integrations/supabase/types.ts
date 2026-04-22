@@ -875,6 +875,117 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_overrides: {
+        Row: {
+          active: boolean
+          canonical: string | null
+          created_at: string
+          description: string | null
+          id: string
+          jsonld: Json
+          keywords: string | null
+          og_image: string | null
+          robots: string | null
+          route_pattern: string
+          target_id: string | null
+          target_type: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          canonical?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          jsonld?: Json
+          keywords?: string | null
+          og_image?: string | null
+          robots?: string | null
+          route_pattern: string
+          target_id?: string | null
+          target_type?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          canonical?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          jsonld?: Json
+          keywords?: string | null
+          og_image?: string | null
+          robots?: string | null
+          route_pattern?: string
+          target_id?: string | null
+          target_type?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_redirects: {
+        Row: {
+          active: boolean
+          created_at: string
+          from_path: string
+          hits: number
+          id: string
+          notes: string | null
+          status_code: number
+          to_path: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          from_path: string
+          hits?: number
+          id?: string
+          notes?: string | null
+          status_code?: number
+          to_path: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          from_path?: string
+          hits?: number
+          id?: string
+          notes?: string | null
+          status_code?: number
+          to_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_settings: {
+        Row: {
+          category: string
+          key: string
+          label: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          category?: string
+          key: string
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          category?: string
+          key?: string
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       social_accounts: {
         Row: {
           active: boolean
@@ -1746,6 +1857,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_redirect_hit: { Args: { _from: string }; Returns: undefined }
       mark_email_failed: {
         Args: { _error: string; _id: string }
         Returns: undefined

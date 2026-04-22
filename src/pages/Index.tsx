@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SeoHead from "@/components/seo/SeoHead";
 import AdBanner from "@/components/AdBanner";
 import PublicSurvey from "@/components/engagement/PublicSurvey";
 import { usePageSections } from "@/hooks/usePageSections";
@@ -10,6 +11,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead route="/" type="website" />
       <Header />
       <div className="h-[calc(4rem+1.75rem)] lg:h-[calc(5rem+1.75rem)]" />
 
