@@ -9,6 +9,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { cn } from "@/lib/utils";
 import PremiumDialog from "@/components/PremiumDialog";
 import NotificationBell from "@/components/NotificationBell";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 // Graduated UX: Discover → Inspire → Live → Watch → Read → About
 const navGroups = [
@@ -60,6 +61,9 @@ const Header = () => {
   const { user, profile, signOut } = useAuth();
   const { hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
   const location = useLocation();
+  const site = useSiteSettings();
+  const firstLetter = site.site_name.charAt(0) || "N";
+  const restName = site.site_name.slice(1) || "sango";
 
   const isActive = (href: string) =>
     href === "/" ? location.pathname === "/" : location.pathname.startsWith(href);
@@ -76,7 +80,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="gradient-dark px-4 py-1.5 text-center">
         <p className="text-xs tracking-[0.2em] uppercase text-gold font-body">
-          Les visages qui inspirent l'Afrique
+          {site.site_slogan}
         </p>
       </div>
 
@@ -85,9 +89,9 @@ const Header = () => {
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Nsango Magazine — Accueil">
+        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label={`${site.site_name} — Accueil`}>
           <h1 className="font-display text-2xl lg:text-3xl font-bold tracking-tight">
-            <span className="text-gold">N</span>sango
+            <span className="text-gold">{firstLetter}</span>{restName}
           </h1>
           <span className="hidden sm:inline text-xs uppercase tracking-[0.15em] text-muted-foreground font-body border-l border-border pl-2">
             Magazine
