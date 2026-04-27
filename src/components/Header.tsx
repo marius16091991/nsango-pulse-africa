@@ -85,21 +85,15 @@ const Header = () => {
                 <div className="absolute top-full left-0 pt-1 animate-fade-in">
                   <div className="bg-background border border-border rounded-lg shadow-elegant min-w-[220px] p-2">
                     {group.items.map((item) => {
-                      const NavItem = isExternal(item.href) ? "a" : Link;
-                      const navProps = isExternal(item.href) ? { href: item.href, target: "_blank", rel: "noopener noreferrer" } : { to: item.href };
-                      return (
-                      <NavItem
-                        key={item.id}
-                        {...navProps}
-                        onClick={() => setOpenGroup(null)}
-                        className={cn(
-                          "block px-3 py-2 rounded-md text-sm transition-colors",
-                          !isExternal(item.href) && isActive(item.href) ? "bg-gold/10 text-gold" : "hover:bg-secondary"
-                        )}
-                      >
-                        <p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>
-                        {item.description && <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.description}</p>}
-                      </NavItem>
+                      const classes = cn(
+                        "block px-3 py-2 rounded-md text-sm transition-colors",
+                        !isExternal(item.href) && isActive(item.href) ? "bg-gold/10 text-gold" : "hover:bg-secondary"
+                      );
+                      const content = <><p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>{item.description && <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.description}</p>}</>;
+                      return isExternal(item.href) ? (
+                        <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => setOpenGroup(null)} className={classes}>{content}</a>
+                      ) : (
+                        <Link key={item.id} to={item.href} onClick={() => setOpenGroup(null)} className={classes}>{content}</Link>
                       );
                     })}
                   </div>
@@ -110,22 +104,15 @@ const Header = () => {
           })}
           {flatItems.map((item) => {
             const FIcon = getLucideIcon(item.icon, Sparkles);
-            const FlatItem = isExternal(item.href) ? "a" : Link;
-            const flatProps = isExternal(item.href) ? { href: item.href, target: "_blank", rel: "noopener noreferrer" } : { to: item.href };
-            return (
-              <FlatItem
-                key={item.id}
-                {...flatProps}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
-                  item.highlight && "text-gold",
-                  !isExternal(item.href) && isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
-                )}
-              >
-                <FIcon className="w-3.5 h-3.5" />
-                {item.label}
-              </FlatItem>
+            const classes = cn(
+              "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
+              item.highlight && "text-gold",
+              !isExternal(item.href) && isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
             );
+            const content = <><FIcon className="w-3.5 h-3.5" />{item.label}</>;
+            return isExternal(item.href)
+              ? <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className={classes}>{content}</a>
+              : <Link key={item.id} to={item.href} className={classes}>{content}</Link>;
           })}
         </nav>
 
