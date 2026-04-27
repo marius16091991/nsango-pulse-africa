@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNavLinks, type NavLink } from "@/hooks/useNavLinks";
@@ -32,8 +33,31 @@ const NavLinksManager = ({ location }: Props) => {
   const { links, loading, refresh } = useNavLinks(location, false);
   const [editing, setEditing] = useState<Partial<NavLink> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [columnFilter, setColumnFilter] = useState<string>("all");
 
-  const grouped = links.reduce<Record<string, NavLink[]>>((acc, l) => {
+  const allColumns = Array.from(new Set(links.map((l) => l.column_key || "main")));
+
+  const filtered = links.filter((l) => {
+    if (statusFilter === "visible" && !l.visible) return false;
+    if (statusFilter === "hidden" && l.visible) return false;
+    if (columnFilter !== "all" && (l.column_key || "main") !== columnFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (
+        !l.label.toLowerCase().includes(q) &&
+        !l.href.toLowerCase().includes(q) &&
+        !(l.group_label || "").toLowerCase().includes(q)
+      ) return false;
+    }
+    return true;
+  });
+
+  const visibleCount = links.filter((l) => l.visible).length;
+  const hiddenCount = links.length - visibleCount;
+
+  const grouped = filtered.reduce<Record<string, NavLink[]>>((acc, l) => {
     const k = l.column_key || "main";
     (acc[k] ||= []).push(l);
     return acc;
@@ -108,6 +132,35 @@ const NavLinksManager = ({ location }: Props) => {
         </Button>
       </div>
 
+      <Card>
+        <CardContent className="p-3 flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Rechercher un lien (libellé, URL, groupe)..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 min-w-[220px] h-9"
+          />
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+            <SelectTrigger className="h-9 w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous ({links.length})</SelectItem>
+              <SelectItem value="visible">Visibles ({visibleCount})</SelectItem>
+              <SelectItem value="hidden">Masqués ({hiddenCount})</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={columnFilter} onValueChange={setColumnFilter}>
+            <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder="Colonne" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les colonnes</SelectItem>
+              {allColumns.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Badge variant="outline" className="font-mono text-[10px]">{filtered.length} affichés</Badge>
+        </CardContent>
+      </Card>
+
       {Object.entries(grouped).map(([colKey, items]) => (
         <Card key={colKey}>
           <CardHeader className="pb-3">
@@ -128,13 +181,19 @@ const NavLinksManager = ({ location }: Props) => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm font-body truncate">{l.label}</span>
                     {l.highlight && <Star className="w-3 h-3 text-gold fill-gold" />}
+                    <Badge variant={l.visible ? "default" : "secondary"} className="text-[9px] px-1.5 py-0 h-4">
+                      {l.visible ? "Visible" : "Masqué"}
+                    </Badge>
                     <code className="text-[10px] text-muted-foreground">{l.href}</code>
                   </div>
                   {l.description && <p className="text-xs text-muted-foreground truncate">{l.description}</p>}
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => toggleVisible(l)} title={l.visible ? "Masquer" : "Afficher"}>
-                  {l.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                </Button>
+                <div className="flex items-center gap-2 px-2 border-r mr-1">
+                  <Switch checked={l.visible} onCheckedChange={() => toggleVisible(l)} />
+                  {l.visible
+                    ? <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                    : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
+                </div>
                 <Button size="sm" variant="outline" onClick={() => setEditing(l)}>Modifier</Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(l)} className="text-destructive hover:text-destructive">
                   <Trash2 className="w-4 h-4" />
@@ -148,6 +207,12 @@ const NavLinksManager = ({ location }: Props) => {
       {links.length === 0 && (
         <Card><CardContent className="py-12 text-center text-sm text-muted-foreground font-body">
           Aucun lien dans cette section. Cliquez sur « Nouveau lien » pour commencer.
+        </CardContent></Card>
+      )}
+
+      {links.length > 0 && filtered.length === 0 && (
+        <Card><CardContent className="py-8 text-center text-sm text-muted-foreground font-body">
+          Aucun lien ne correspond à ces filtres.
         </CardContent></Card>
       )}
 
