@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toAppPath } from "@/lib/links";
 
 export interface NavLink {
   id: string;
@@ -24,7 +25,7 @@ export const useNavLinks = (location: "header" | "footer", onlyVisible = true) =
     let q = supabase.from("nav_links").select("*").eq("location", location).order("sort_order");
     if (onlyVisible) q = q.eq("visible", true);
     const { data } = await q;
-    setLinks((data as any) || []);
+    setLinks((((data as any) || []) as NavLink[]).map((link) => ({ ...link, href: toAppPath(link.href) })));
     setLoading(false);
   };
 

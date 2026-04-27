@@ -45,11 +45,19 @@ export const useUserRole = () => {
         }
         return;
       }
-      const { data } = await supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from("user_roles")
         .select("role, priority")
         .eq("user_id", user.id);
       if (cancelled) return;
+      if (error) {
+        console.warn("Impossible de charger les rôles utilisateur", error.message);
+        setRoles([]);
+        setPriority(0);
+        setLoading(false);
+        return;
+      }
       const list = (data || []) as { role: DbRole; priority: number }[];
       setRoles(list.map((r) => r.role));
       setPriority(list.reduce((m, r) => Math.max(m, r.priority || 0), 0));

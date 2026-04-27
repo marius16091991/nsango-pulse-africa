@@ -14,6 +14,8 @@ import { useLayoutSettings } from "@/hooks/useLayoutSettings";
 import { useNavLinks, groupNavLinks } from "@/hooks/useNavLinks";
 import { getLucideIcon } from "@/lib/lucideIcon";
 
+const isExternal = (href: string) => /^https?:\/\//i.test(href);
+
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -82,20 +84,18 @@ const Header = () => {
               {openGroup === group.key && (
                 <div className="absolute top-full left-0 pt-1 animate-fade-in">
                   <div className="bg-background border border-border rounded-lg shadow-elegant min-w-[220px] p-2">
-                    {group.items.map((item) => (
-                      <Link
-                        key={item.id}
-                        to={item.href}
-                        onClick={() => setOpenGroup(null)}
-                        className={cn(
-                          "block px-3 py-2 rounded-md text-sm transition-colors",
-                          isActive(item.href) ? "bg-gold/10 text-gold" : "hover:bg-secondary"
-                        )}
-                      >
-                        <p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>
-                        {item.description && <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.description}</p>}
-                      </Link>
-                    ))}
+                    {group.items.map((item) => {
+                      const classes = cn(
+                        "block px-3 py-2 rounded-md text-sm transition-colors",
+                        !isExternal(item.href) && isActive(item.href) ? "bg-gold/10 text-gold" : "hover:bg-secondary"
+                      );
+                      const content = <><p className="font-medium font-body uppercase tracking-wider text-xs">{item.label}</p>{item.description && <p className="text-[11px] text-muted-foreground font-body mt-0.5 normal-case tracking-normal">{item.description}</p>}</>;
+                      return isExternal(item.href) ? (
+                        <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => setOpenGroup(null)} className={classes}>{content}</a>
+                      ) : (
+                        <Link key={item.id} to={item.href} onClick={() => setOpenGroup(null)} className={classes}>{content}</Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -104,20 +104,15 @@ const Header = () => {
           })}
           {flatItems.map((item) => {
             const FIcon = getLucideIcon(item.icon, Sparkles);
-            return (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
-                  item.highlight && "text-gold",
-                  isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
-                )}
-              >
-                <FIcon className="w-3.5 h-3.5" />
-                {item.label}
-              </Link>
+            const classes = cn(
+              "flex items-center gap-1.5 px-3 py-2 text-sm font-medium tracking-wide uppercase font-body transition-colors",
+              item.highlight && "text-gold",
+              !isExternal(item.href) && isActive(item.href) ? "text-gold" : !item.highlight && "text-foreground/80 hover:text-gold"
             );
+            const content = <><FIcon className="w-3.5 h-3.5" />{item.label}</>;
+            return isExternal(item.href)
+              ? <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className={classes}>{content}</a>
+              : <Link key={item.id} to={item.href} className={classes}>{content}</Link>;
           })}
         </nav>
 
@@ -195,15 +190,10 @@ const Header = () => {
                   <p className="flex items-center gap-1.5 px-3 mb-1 text-[10px] uppercase tracking-widest text-gold font-semibold">
                     <GIcon className="w-3 h-3" /> {group.label || group.key}
                   </p>
-                  {group.items.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={item.href}
-                      className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
+                  {group.items.map((item) => isExternal(item.href) ? (
+                    <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body" onClick={() => setMenuOpen(false)}>{item.label}</a>
+                  ) : (
+                    <Link key={item.id} to={item.href} className="block px-3 py-2 text-sm text-foreground/80 hover:text-gold hover:bg-secondary rounded-lg font-body" onClick={() => setMenuOpen(false)}>{item.label}</Link>
                   ))}
                 </div>
               );
@@ -212,17 +202,11 @@ const Header = () => {
               {flatItems.map((item) => {
                 const FIcon = getLucideIcon(item.icon, Sparkles);
                 return (
-                  <Link
-                    key={item.id}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg",
-                      item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary"
-                    )}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <FIcon className="w-4 h-4" /> {item.label}
-                  </Link>
+                  isExternal(item.href) ? (
+                    <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className={cn("flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg", item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary")} onClick={() => setMenuOpen(false)}><FIcon className="w-4 h-4" /> {item.label}</a>
+                  ) : (
+                    <Link key={item.id} to={item.href} className={cn("flex items-center gap-2 px-3 py-2.5 text-sm font-medium font-body rounded-lg", item.highlight ? "text-gold" : "text-foreground/80 hover:text-gold hover:bg-secondary")} onClick={() => setMenuOpen(false)}><FIcon className="w-4 h-4" /> {item.label}</Link>
+                  )
                 );
               })}
             </div>
