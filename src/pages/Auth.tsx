@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Eye, EyeOff, LogIn, UserPlus, ArrowLeft, Mail, KeyRound } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, ArrowLeft, Mail, Sparkles, ShieldCheck, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { describeAuthPasswordError } from "@/lib/authErrors";
@@ -87,25 +87,74 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Logo */}
-        <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-6">
-            <ArrowLeft className="w-4 h-4" /> Retour au site
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      {/* Brand panel */}
+      <div className="relative hidden lg:flex flex-col justify-between p-10 gradient-dark overflow-hidden">
+        <div className="absolute inset-0 opacity-30 pointer-events-none"
+             style={{ background: "radial-gradient(600px at 30% 20%, hsl(var(--gold) / 0.25), transparent 70%), radial-gradient(500px at 80% 80%, hsl(var(--gold) / 0.15), transparent 70%)" }} />
+        <div className="relative z-10">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold text-xs uppercase tracking-widest font-body">
+            <ArrowLeft className="w-3.5 h-3.5" /> Retour au site
           </Link>
-          <h1 className="font-display text-4xl font-bold">
+        </div>
+        <div className="relative z-10 space-y-6 max-w-md">
+          <h1 className="font-display text-5xl font-bold leading-tight">
             <span className="text-gold">N</span>sango
+            <span className="block text-base uppercase tracking-[0.3em] text-muted-foreground font-body mt-2">Magazine</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            {mode === "login" && "Connectez-vous à votre espace"}
-            {mode === "register" && "Créez votre compte"}
-            {mode === "forgot" && "Récupérez l'accès à votre compte"}
+          <p className="font-display text-2xl leading-snug">
+            Les visages qui inspirent <span className="text-gold">l'Afrique</span>.
+          </p>
+          <p className="text-sm text-muted-foreground font-body leading-relaxed">
+            Rejoignez une communauté qui célèbre la culture, l'innovation et les talents du continent.
           </p>
         </div>
+        <div className="relative z-10 grid grid-cols-1 gap-3 max-w-sm">
+          {[
+            { icon: Sparkles, text: "Articles exclusifs et portraits inédits" },
+            { icon: Crown, text: "Accès Premium aux contenus longs" },
+            { icon: ShieldCheck, text: "Vos données restent privées et sécurisées" },
+          ].map(({ icon: Icon, text }) => (
+            <div key={text} className="flex items-center gap-3 text-xs text-foreground/80 font-body">
+              <span className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-gold" />
+              </span>
+              {text}
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <Card className="shadow-elegant border-border">
-          <CardContent className="p-6">
+      {/* Form panel */}
+      <div className="flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md space-y-6">
+          <div className="lg:hidden text-center">
+            <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm mb-4">
+              <ArrowLeft className="w-4 h-4" /> Retour au site
+            </Link>
+            <h1 className="font-display text-3xl font-bold">
+              <span className="text-gold">N</span>sango
+            </h1>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-gold font-body">
+              {mode === "login" ? "Connexion" : mode === "register" ? "Inscription" : "Récupération"}
+            </p>
+            <h2 className="font-display text-3xl font-bold">
+              {mode === "login" && "Bon retour !"}
+              {mode === "register" && "Créez votre compte"}
+              {mode === "forgot" && "Mot de passe oublié"}
+            </h2>
+            <p className="text-sm text-muted-foreground font-body">
+              {mode === "login" && "Connectez-vous pour accéder à votre espace personnalisé."}
+              {mode === "register" && "Quelques secondes suffisent pour rejoindre la communauté."}
+              {mode === "forgot" && "Nous vous enverrons un lien sécurisé par email."}
+            </p>
+          </div>
+
+          <Card className="shadow-elegant border-border/60">
+            <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "register" && (
                 <div>
@@ -169,7 +218,7 @@ const Auth = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-gold hover:bg-gold-dark text-primary font-semibold gap-2"
+                className="w-full bg-gold hover:bg-gold-dark text-primary font-semibold gap-2 h-11"
                 disabled={submitting}
               >
                 {mode === "login" && <LogIn className="w-4 h-4" />}
@@ -202,8 +251,13 @@ const Auth = () => {
                 </button>
               )}
             </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <p className="text-[11px] text-center text-muted-foreground font-body">
+            En continuant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.
+          </p>
+        </div>
       </div>
     </div>
   );
