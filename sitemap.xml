@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+<!-- HOME -->
+<url>
+  <loc>https://nsangomagazine.com/</loc>
+</url>
+
+<!-- CATEGORIES -->
+<url><loc>https://nsangomagazine.com/portraits</loc></url>
+<url><loc>https://nsangomagazine.com/business</loc></url>
+<url><loc>https://nsangomagazine.com/culture</loc></url>
+<url><loc>https://nsangomagazine.com/interviews</loc></url>
+<url><loc>https://nsangomagazine.com/videos</loc></url>
+<url><loc>https://nsangomagazine.com/magazine</loc></url>
+<url><loc>https://nsangomagazine.com/actualites</loc></url>
+
+<url>
+  <loc>https://nsangomagazine.com/article/economie-cameroun-2026</loc>
+  <lastmod>2026-04-28</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://nsangomagazine.com/article/technologie-afrique-ia</loc>
+  <lastmod>2026-04-28</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.8</priority>
+</url>
+</urlset>

@@ -1,0 +1,16 @@
+import { Helmet } from "react-helmet";
+
+<Helmet>
+  <title>{article.title} | Nsango Magazine</title>
+
+  <meta name="description" content={article.description} />
+
+  <meta property="og:title" content={article.title} />
+  <meta property="og:description" content={article.description} />
+  <meta property="og:image" content={article.image} />
+  <meta property="og:type" content="article" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+
+
+</Helmet>
