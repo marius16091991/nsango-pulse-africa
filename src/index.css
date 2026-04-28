@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 20% 97%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    --primary: 0 0% 8%;
+    --primary-foreground: 40 20% 97%;
+
+    --secondary: 40 15% 92%;
+    --secondary-foreground: 0 0% 8%;
+
+    --muted: 40 10% 94%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 40 10% 94%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 10% 88%;
+    --input: 40 10% 88%;
+    --ring: 43 80% 50%;
+
+    --radius: 0.5rem;
+
+    /* Nsango custom tokens */
+    --gold: 43 80% 50%;
+    --gold-light: 43 70% 65%;
+    --gold-dark: 43 90% 38%;
+    --bordeaux: 345 60% 30%;
+    --bordeaux-light: 345 50% 45%;
+    --terre: 25 40% 35%;
+    --terre-light: 25 30% 55%;
+
+    --font-display: 'Myriad Pro', Tahoma, Geneva, sans-serif;
+    --font-body: Tahoma, Geneva, Verdana, sans-serif;
+
+    --gradient-gold: linear-gradient(135deg, hsl(43 80% 50%), hsl(43 70% 65%));
+    --gradient-hero: linear-gradient(180deg, hsla(0,0%,0%,0.1) 0%, hsla(0,0%,0%,0.7) 100%);
+    --gradient-dark: linear-gradient(135deg, hsl(0,0%,8%) 0%, hsl(345,60%,15%) 100%);
+
+    --shadow-elegant: 0 10px 40px -10px hsla(0,0%,0%,0.15);
+    --shadow-card: 0 4px 20px -4px hsla(0,0%,0%,0.08);
+  }
+
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 40 20% 95%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 43 80% 50%;
+    --primary-foreground: 0 0% 6%;
+
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 40 20% 95%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 40 10% 60%;
+
+    --accent: 0 0% 14%;
+    --accent-foreground: 40 20% 95%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 40 20% 95%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 43 80% 50%;
+
+    --shadow-elegant: 0 10px 40px -10px hsla(0,0%,0%,0.4);
+    --shadow-card: 0 4px 20px -4px hsla(0,0%,0%,0.2);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-body {
+    font-family: var(--font-body);
+  }
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+  .bg-gold {
+    background-color: hsl(var(--gold));
+  }
+  .text-bordeaux {
+    color: hsl(var(--bordeaux));
+  }
+  .bg-bordeaux {
+    background-color: hsl(var(--bordeaux));
+  }
+  .text-terre {
+    color: hsl(var(--terre));
+  }
+  .bg-terre {
+    background-color: hsl(var(--terre));
+  }
+  .gradient-gold {
+    background: var(--gradient-gold);
+  }
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .gradient-dark {
+    background: var(--gradient-dark);
+  }
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
