@@ -36,7 +36,10 @@ export const useUserRole = () => {
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      if (authLoading) return;
+      if (authLoading) {
+        if (!cancelled) setLoading(true);
+        return;
+      }
       if (!user) {
         if (!cancelled) {
           setRoles([]);
