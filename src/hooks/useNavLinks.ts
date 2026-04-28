@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toAppPath } from "@/lib/links";
 
@@ -18,29 +19,32 @@ export interface NavLink {
 }
 
 export const useNavLinks = (location: "header" | "footer", onlyVisible = true) => {
-  const [links, setLinks] = useState<NavLink[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const queryKey = ["nav_links", location, onlyVisible];
 
-  const fetchLinks = async () => {
-    let q = supabase.from("nav_links").select("*").eq("location", location).order("sort_order");
-    if (onlyVisible) q = q.eq("visible", true);
-    const { data } = await q;
-    setLinks((((data as any) || []) as NavLink[]).map((link) => ({ ...link, href: toAppPath(link.href) })));
-    setLoading(false);
-  };
+  const { data: links = [], isLoading: loading, refetch } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      let q = supabase.from("nav_links").select("*").eq("location", location).order("sort_order");
+      if (onlyVisible) q = q.eq("visible", true);
+      const { data } = await q;
+      return (((data as any) || []) as NavLink[]).map((link) => ({ ...link, href: toAppPath(link.href) }));
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   useEffect(() => {
-    fetchLinks();
     const ch = supabase
       .channel(`nav-${location}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "nav_links", filter: `location=eq.${location}` },
-        () => fetchLinks())
+        () => queryClient.invalidateQueries({ queryKey }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, onlyVisible]);
 
-  return { links, loading, refresh: fetchLinks };
+  return { links, loading, refresh: refetch };
 };
 
 /** Group header links by column_key preserving first-seen order */
