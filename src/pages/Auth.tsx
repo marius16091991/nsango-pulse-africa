@@ -88,24 +88,24 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      {/* Brand panel */}
-      <div className="relative hidden lg:flex flex-col justify-between p-10 gradient-dark overflow-hidden">
+      {/* Brand panel — dark, on force des couleurs claires pour la lisibilité */}
+      <div className="relative hidden lg:flex flex-col justify-between p-10 gradient-dark overflow-hidden text-white">
         <div className="absolute inset-0 opacity-30 pointer-events-none"
              style={{ background: "radial-gradient(600px at 30% 20%, hsl(var(--gold) / 0.25), transparent 70%), radial-gradient(500px at 80% 80%, hsl(var(--gold) / 0.15), transparent 70%)" }} />
         <div className="relative z-10">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold text-xs uppercase tracking-widest font-body">
+          <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-gold text-xs uppercase tracking-widest font-body">
             <ArrowLeft className="w-3.5 h-3.5" /> Retour au site
           </Link>
         </div>
         <div className="relative z-10 space-y-6 max-w-md">
           <h1 className="font-display text-5xl font-bold leading-tight">
             <span className="text-gold">N</span>sango
-            <span className="block text-base uppercase tracking-[0.3em] text-muted-foreground font-body mt-2">Magazine</span>
+            <span className="block text-base uppercase tracking-[0.3em] text-white/60 font-body mt-2">Magazine</span>
           </h1>
-          <p className="font-display text-2xl leading-snug">
+          <p className="font-display text-2xl leading-snug text-white">
             Les visages qui inspirent <span className="text-gold">l'Afrique</span>.
           </p>
-          <p className="text-sm text-muted-foreground font-body leading-relaxed">
+          <p className="text-sm text-white/70 font-body leading-relaxed">
             Rejoignez une communauté qui célèbre la culture, l'innovation et les talents du continent.
           </p>
         </div>
@@ -115,7 +115,7 @@ const Auth = () => {
             { icon: Crown, text: "Accès Premium aux contenus longs" },
             { icon: ShieldCheck, text: "Vos données restent privées et sécurisées" },
           ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-3 text-xs text-foreground/80 font-body">
+            <div key={text} className="flex items-center gap-3 text-xs text-white/85 font-body">
               <span className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
                 <Icon className="w-4 h-4 text-gold" />
               </span>
