@@ -88,8 +88,11 @@ const AdminLayout = () => {
   const isAgentOnly = isAgent && !isAdmin;
 
   useEffect(() => {
-    if (!loading && !user) navigate("/auth");
-  }, [user, loading, navigate]);
+    if (!loading && !user) {
+      const redirect = encodeURIComponent(location.pathname + location.search);
+      navigate(`/auth?redirect=${redirect}`, { replace: true });
+    }
+  }, [user, loading, navigate, location.pathname, location.search]);
 
   // Redirige les Agents qui tentent d'accéder à une route interdite
   useEffect(() => {
