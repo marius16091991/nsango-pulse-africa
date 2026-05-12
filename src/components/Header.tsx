@@ -3,7 +3,7 @@ import { Search, Menu, X, Crown, LogOut, Sparkles, ChevronDown, LayoutDashboard,
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { cn } from "@/lib/utils";
@@ -19,11 +19,13 @@ const isExternal = (href: string) => /^https?:\/\//i.test(href);
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [premiumOpen, setPremiumOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
   const { hasAdminConsoleAccess, primaryRoleLabel } = useUserRole();
   const location = useLocation();
+  const navigate = useNavigate();
   const site = useSiteSettings();
   const layout = useLayoutSettings();
   const { links: headerLinks } = useNavLinks("header");
@@ -34,6 +36,15 @@ const Header = () => {
 
   const isActive = (href: string) =>
     href === "/" ? location.pathname === "/" : location.pathname.startsWith(href);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    setSearchOpen(false);
+    setMenuOpen(false);
+    navigate(`/recherche?q=${encodeURIComponent(q)}`);
+  };
 
   const getInitials = () => {
     const name = profile?.display_name || user?.email || "";
@@ -175,7 +186,16 @@ const Header = () => {
       {searchOpen && (
         <div className="border-t border-border px-4 py-3 animate-fade-in">
           <div className="container mx-auto">
-            <input type="text" placeholder={layout.header_search_placeholder} className="w-full bg-secondary px-4 py-2.5 rounded-lg text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50" autoFocus />
+            <form onSubmit={submitSearch}>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={layout.header_search_placeholder}
+                className="w-full bg-secondary px-4 py-2.5 rounded-lg text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/50"
+                autoFocus
+              />
+            </form>
           </div>
         </div>
       )}
