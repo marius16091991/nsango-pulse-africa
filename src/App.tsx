@@ -19,6 +19,7 @@ import Politique from "./pages/Politique.tsx";
 import Sport from "./pages/Sport.tsx";
 import Lifestyle from "./pages/Lifestyle.tsx";
 import Tech from "./pages/Tech.tsx";
+import Recherche from "./pages/Recherche.tsx";
 import Auth from "./pages/Auth.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Premium from "./pages/Premium.tsx";
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/sport" element={<Sport />} />
             <Route path="/lifestyle" element={<Lifestyle />} />
             <Route path="/tech" element={<Tech />} />
+            <Route path="/recherche" element={<Recherche />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/reset-password" element={<ResetPassword />} />
             <Route path="/premium" element={<Premium />} />
