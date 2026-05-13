@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FileText, Users, Eye, Crown, TrendingUp, TrendingDown, ArrowUpRight, Activity, BarChart3, MessageSquare, PieChart, Megaphone, Loader2 } from "lucide-react";
+import { FileText, Users, Eye, Crown, TrendingUp, TrendingDown, ArrowUpRight, Activity, BarChart3, MessageSquare, PieChart, Megaphone, Loader2, Heart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -8,13 +8,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const { profile } = useAuth();
-  const [stats, setStats] = useState({ articles: 0, published: 0, surveys: 0, comments: 0, campaigns: 0, pendingComments: 0 });
+  const [stats, setStats] = useState({ articles: 0, published: 0, surveys: 0, comments: 0, campaigns: 0, pendingComments: 0, reactions: 0 });
   const [recentArticles, setRecentArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [artRes, pubRes, survRes, comRes, campRes, pendRes, recentRes] = await Promise.all([
+      const [artRes, pubRes, survRes, comRes, campRes, pendRes, recentRes, reactRes] = await Promise.all([
         supabase.from("articles").select("*", { count: "exact", head: true }),
         supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("surveys").select("*", { count: "exact", head: true }),
@@ -22,6 +22,7 @@ const Dashboard = () => {
         supabase.from("ad_campaigns").select("*", { count: "exact", head: true }),
         supabase.from("comments").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("articles").select("id, title, status, views, created_at, category").order("created_at", { ascending: false }).limit(6),
+        supabase.from("reactions").select("*", { count: "exact", head: true }),
       ]);
       setStats({
         articles: artRes.count || 0,
@@ -30,6 +31,7 @@ const Dashboard = () => {
         comments: comRes.count || 0,
         campaigns: campRes.count || 0,
         pendingComments: pendRes.count || 0,
+        reactions: reactRes.count || 0,
       });
       setRecentArticles(recentRes.data || []);
       setLoading(false);
@@ -47,8 +49,9 @@ const Dashboard = () => {
 
   const cards = [
     { label: "Articles", value: stats.articles, sub: `${stats.published} publiés`, icon: FileText, color: "bg-blue-50 text-blue-600" },
-    { label: "Sondages", value: stats.surveys, sub: "actifs", icon: PieChart, color: "bg-purple-50 text-purple-600" },
+    { label: "Réactions", value: stats.reactions, sub: "❤️ 🔥 👏", icon: Heart, color: "bg-rose-50 text-rose-600" },
     { label: "Commentaires", value: stats.comments, sub: `${stats.pendingComments} en attente`, icon: MessageSquare, color: "bg-green-50 text-green-600" },
+    { label: "Sondages", value: stats.surveys, sub: "actifs", icon: PieChart, color: "bg-purple-50 text-purple-600" },
     { label: "Campagnes pub", value: stats.campaigns, sub: "total", icon: Megaphone, color: "bg-gold/10 text-gold-dark" },
   ];
 
@@ -132,6 +135,7 @@ const Dashboard = () => {
               { to: "/admin/surveys", icon: "📊", label: "Lancer un sondage" },
               { to: "/admin/advertising", icon: "📢", label: "Nouvelle campagne" },
               { to: "/admin/comments", icon: "💬", label: `Modérer (${stats.pendingComments})` },
+              { to: "/admin/reactions", icon: "❤️", label: "Voir les réactions" },
               { to: "/admin/magazine", icon: "📖", label: "Magazine mensuel" },
               { to: "/admin/settings", icon: "⚙️", label: "Paramètres" },
             ].map((action) => (
