@@ -44,6 +44,7 @@ import NotificationsPage from "./pages/admin/NotificationsPage.tsx";
 import ContentManager from "./pages/admin/ContentManager.tsx";
 import EmailsOutbox from "./pages/admin/EmailsOutbox.tsx";
 import SocialMedia from "./pages/admin/SocialMedia.tsx";
+import ReactionsManager from "./pages/admin/ReactionsManager.tsx";
 import UserNotifications from "./pages/compte/Notifications.tsx";
 import CompteLayout from "./pages/compte/CompteLayout.tsx";
 import CompteOverview from "./pages/compte/Overview.tsx";
@@ -113,6 +114,7 @@ const App = () => (
               <Route path="emails" element={<EmailsOutbox />} />
               <Route path="content" element={<ContentManager />} />
               <Route path="social" element={<SocialMedia />} />
+              <Route path="reactions" element={<ReactionsManager />} />
               <Route path="seo" element={<SeoManager />} />
               <Route path="layout" element={<LayoutManager />} />
             </Route>
