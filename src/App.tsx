@@ -45,6 +45,7 @@ import ContentManager from "./pages/admin/ContentManager.tsx";
 import EmailsOutbox from "./pages/admin/EmailsOutbox.tsx";
 import SocialMedia from "./pages/admin/SocialMedia.tsx";
 import ReactionsManager from "./pages/admin/ReactionsManager.tsx";
+import PopupsManager from "./pages/admin/PopupsManager.tsx";
 import UserNotifications from "./pages/compte/Notifications.tsx";
 import CompteLayout from "./pages/compte/CompteLayout.tsx";
 import CompteOverview from "./pages/compte/Overview.tsx";
@@ -54,6 +55,7 @@ import CompteAbonnement from "./pages/compte/Abonnement.tsx";
 import SeoManager from "./pages/admin/SeoManager.tsx";
 import LayoutManager from "./pages/admin/LayoutManager.tsx";
 import SeoGlobal from "./components/seo/SeoGlobal";
+import SitePopups from "./components/SitePopups";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <SeoGlobal />
+          <SitePopups />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/portraits" element={<Portraits />} />
@@ -115,6 +118,7 @@ const App = () => (
               <Route path="content" element={<ContentManager />} />
               <Route path="social" element={<SocialMedia />} />
               <Route path="reactions" element={<ReactionsManager />} />
+              <Route path="popups" element={<PopupsManager />} />
               <Route path="seo" element={<SeoManager />} />
               <Route path="layout" element={<LayoutManager />} />
             </Route>
