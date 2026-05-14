@@ -767,6 +767,44 @@ export type Database = {
         }
         Relationships: []
       }
+      popup_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          page_path: string | null
+          popup_id: string
+          user_id: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          page_path?: string | null
+          popup_id: string
+          user_id?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          page_path?: string | null
+          popup_id?: string
+          user_id?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "popup_events_popup_id_fkey"
+            columns: ["popup_id"]
+            isOneToOne: false
+            referencedRelation: "site_popups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       premium_plans: {
         Row: {
           active: boolean
@@ -1034,6 +1072,117 @@ export type Database = {
           label?: string
           updated_at?: string
           value?: string
+        }
+        Relationships: []
+      }
+      site_popups: {
+        Row: {
+          accent_color: string
+          animation: string
+          audience: string
+          background_color: string
+          border_radius: string
+          clicks: number
+          content: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_style: string
+          cta_url: string | null
+          dismissals: number
+          display_type: string
+          end_at: string | null
+          exclude_pages: string[]
+          frequency: string
+          id: string
+          image_url: string | null
+          impressions: number
+          name: string
+          overlay: boolean
+          position: string
+          priority: number
+          show_close_button: boolean
+          start_at: string | null
+          status: string
+          target_pages: string[]
+          text_color: string
+          title: string
+          trigger: string
+          trigger_value: number
+          updated_at: string
+          width: string
+        }
+        Insert: {
+          accent_color?: string
+          animation?: string
+          audience?: string
+          background_color?: string
+          border_radius?: string
+          clicks?: number
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_style?: string
+          cta_url?: string | null
+          dismissals?: number
+          display_type?: string
+          end_at?: string | null
+          exclude_pages?: string[]
+          frequency?: string
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          name: string
+          overlay?: boolean
+          position?: string
+          priority?: number
+          show_close_button?: boolean
+          start_at?: string | null
+          status?: string
+          target_pages?: string[]
+          text_color?: string
+          title?: string
+          trigger?: string
+          trigger_value?: number
+          updated_at?: string
+          width?: string
+        }
+        Update: {
+          accent_color?: string
+          animation?: string
+          audience?: string
+          background_color?: string
+          border_radius?: string
+          clicks?: number
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_style?: string
+          cta_url?: string | null
+          dismissals?: number
+          display_type?: string
+          end_at?: string | null
+          exclude_pages?: string[]
+          frequency?: string
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          name?: string
+          overlay?: boolean
+          position?: string
+          priority?: number
+          show_close_button?: boolean
+          start_at?: string | null
+          status?: string
+          target_pages?: string[]
+          text_color?: string
+          title?: string
+          trigger?: string
+          trigger_value?: number
+          updated_at?: string
+          width?: string
         }
         Relationships: []
       }
