@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ReactionBar from "@/components/engagement/ReactionBar";
 
 interface ArticleCardProps {
   image: string;
@@ -11,6 +12,7 @@ interface ArticleCardProps {
   size?: "small" | "medium" | "large";
   premium?: boolean;
   href?: string;
+  articleId?: string;
 }
 
 const ArticleCard = ({
@@ -24,6 +26,7 @@ const ArticleCard = ({
   size = "medium",
   premium = false,
   href,
+  articleId,
 }: ArticleCardProps) => {
   const isLarge = size === "large";
   const isSmall = size === "small";
@@ -55,7 +58,7 @@ const ArticleCard = ({
           </h3>
         </div>
       </div>
-      {(excerpt || author) && (
+      {(excerpt || author || articleId) && (
         <div className="mt-3">
           {excerpt && <p className="text-sm text-muted-foreground font-body line-clamp-2">{excerpt}</p>}
           {(author || date) && (
@@ -64,6 +67,11 @@ const ArticleCard = ({
               {author && date && <span>·</span>}
               {date && <span>{date}</span>}
               {readTime && <><span>·</span><span>{readTime}</span></>}
+            </div>
+          )}
+          {articleId && (
+            <div className="mt-3">
+              <ReactionBar targetType="article" targetId={articleId} size="sm" />
             </div>
           )}
         </div>
