@@ -114,6 +114,7 @@ const DynamicPage = ({ slug, defaultTitle }: Props) => {
                       date={new Date(a.created_at).toLocaleDateString("fr-FR")}
                       size={i === 0 && !hasSections ? "large" : "medium"}
                       premium={a.premium}
+                      articleId={a.id}
                     />
                   </Link>
                 ))}
