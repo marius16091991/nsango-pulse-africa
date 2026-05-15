@@ -170,6 +170,7 @@ export const PageSectionRenderer = ({ section }: { section: PageSection }) => {
                   date={new Date(a.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                   size={i === 0 && columns >= 3 ? "large" : "medium"}
                   premium={a.premium}
+                  articleId={a.id}
                 />
               </Link>
             ))}

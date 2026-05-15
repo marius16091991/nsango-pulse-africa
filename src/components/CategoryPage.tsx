@@ -53,6 +53,7 @@ const CategoryPage = ({ category, title, subtitle }: CategoryPageProps) => {
                   date={new Date(a.created_at).toLocaleDateString("fr-FR")}
                   size={i === 0 ? "large" : "medium"}
                   premium={a.premium}
+                  articleId={a.id}
                 />
               </Link>
             ))}

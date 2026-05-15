@@ -59,16 +59,26 @@ const PopupView = ({ popup, onClose, onClick }: { popup: Popup; onClose: () => v
   const isModal = popup.display_type === "modal";
   const isBanner = popup.display_type === "banner";
   const wrapperCls = positionClasses(popup.display_type, popup.position);
-  const animation =
-    popup.animation === "slide" ? "animate-in slide-in-from-bottom-4 duration-300"
-    : popup.animation === "zoom" ? "animate-in zoom-in-95 duration-200"
-    : popup.animation === "none" ? ""
-    : "animate-in fade-in duration-200";
+  const animMap: Record<string, string> = {
+    fade: "animate-in fade-in",
+    slide: "animate-in slide-in-from-bottom-4",
+    "slide-down": "animate-in slide-in-from-top-4",
+    "slide-left": "animate-in slide-in-from-right-4",
+    "slide-right": "animate-in slide-in-from-left-4",
+    zoom: "animate-in zoom-in-95",
+    bounce: "animate-in zoom-in-50",
+    flip: "animate-in spin-in-12 fade-in",
+    none: "",
+  };
+  const animation = animMap[popup.animation] ?? animMap.fade;
+  const animStyle = popup.animation && popup.animation !== "none"
+    ? { animationDuration: `${popup.animation_duration || 300}ms` }
+    : undefined;
 
   const content = (
     <div
       className={`relative shadow-2xl border ${radiusMap[popup.border_radius] || "rounded-lg"} ${isBanner ? "w-full" : widthMap[popup.width] || "max-w-md"} ${animation}`}
-      style={{ background: popup.background_color, color: popup.text_color, borderColor: `${popup.accent_color}55` }}
+      style={{ background: popup.background_color, color: popup.text_color, borderColor: `${popup.accent_color}55`, ...(animStyle || {}) }}
       onClick={(e) => e.stopPropagation()}
     >
       {popup.show_close_button && (
@@ -220,6 +230,11 @@ const SitePopups = () => {
     const seen = readSeen();
     seen[active.id] = Date.now();
     writeSeen(seen);
+    // Fermeture automatique après X secondes
+    if (active.auto_close_seconds && active.auto_close_seconds > 0) {
+      const t = setTimeout(() => setActive(null), active.auto_close_seconds * 1000);
+      return () => clearTimeout(t);
+    }
   }, [active?.id]);
 
   const close = useCallback(() => {

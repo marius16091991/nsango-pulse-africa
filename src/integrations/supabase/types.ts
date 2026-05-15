@@ -1079,7 +1079,9 @@ export type Database = {
         Row: {
           accent_color: string
           animation: string
+          animation_duration: number
           audience: string
+          auto_close_seconds: number
           background_color: string
           border_radius: string
           clicks: number
@@ -1115,7 +1117,9 @@ export type Database = {
         Insert: {
           accent_color?: string
           animation?: string
+          animation_duration?: number
           audience?: string
+          auto_close_seconds?: number
           background_color?: string
           border_radius?: string
           clicks?: number
@@ -1151,7 +1155,9 @@ export type Database = {
         Update: {
           accent_color?: string
           animation?: string
+          animation_duration?: number
           audience?: string
+          auto_close_seconds?: number
           background_color?: string
           border_radius?: string
           clicks?: number
