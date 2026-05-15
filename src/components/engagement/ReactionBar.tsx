@@ -43,7 +43,7 @@ const ReactionBar = ({ targetType, targetId, size = "md" }: Props) => {
   // Auto-refresh en temps réel quand quelqu'un d'autre réagit
   useEffect(() => {
     const channel = supabase
-      .channel(`reactions-${targetType}-${targetId}`)
+      .channel(`reactions-${targetType}-${targetId}-${Math.random().toString(36).slice(2, 9)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "reactions", filter: `target_id=eq.${targetId}` },
