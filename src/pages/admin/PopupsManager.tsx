@@ -116,6 +116,8 @@ const PopupsManager = () => {
       end_at: form.end_at || null,
       trigger_value: Number(form.trigger_value) || 0,
       priority: Number(form.priority) || 0,
+      animation_duration: Number(form.animation_duration) || 300,
+      auto_close_seconds: Number(form.auto_close_seconds) || 0,
     };
     delete payload.impressions; delete payload.clicks; delete payload.dismissals;
     delete payload.created_at; delete payload.updated_at;
