@@ -40,18 +40,17 @@ const ReactionBar = ({ targetType, targetId, size = "md" }: Props) => {
 
   useEffect(() => { load(); }, [targetType, targetId, user?.id]);
 
-  // Auto-refresh en temps réel quand quelqu'un d'autre réagit
+  // Auto-refresh en temps réel via un canal global partagé (évite la limite de canaux)
   useEffect(() => {
-    const channel = supabase
-      .channel(`reactions-${targetType}-${targetId}-${Math.random().toString(36).slice(2, 9)}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "reactions", filter: `target_id=eq.${targetId}` },
-        () => load()
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const unsub = subscribeReactions(targetId, () => load());
+    return unsub;
   }, [targetType, targetId]);
+
+  // Fallback polling léger toutes les 20s au cas où le realtime ne livre pas
+  useEffect(() => {
+    const t = setInterval(() => load(), 20000);
+    return () => clearInterval(t);
+  }, [targetType, targetId, user?.id]);
 
   const toggle = async (emoji: "heart" | "fire" | "clap") => {
     if (busy) return;
@@ -103,3 +102,36 @@ const ReactionBar = ({ targetType, targetId, size = "md" }: Props) => {
 };
 
 export default ReactionBar;
+
+// --- Canal Realtime partagé ---
+const listeners = new Map<string, Set<() => void>>();
+let sharedChannel: ReturnType<typeof supabase.channel> | null = null;
+
+function ensureChannel() {
+  if (sharedChannel) return;
+  sharedChannel = supabase
+    .channel("reactions-global")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "reactions" },
+      (payload: any) => {
+        const row = (payload.new || payload.old) as { target_id?: string } | undefined;
+        const id = row?.target_id;
+        if (!id) return;
+        listeners.get(id)?.forEach((cb) => cb());
+      }
+    )
+    .subscribe();
+}
+
+function subscribeReactions(targetId: string, cb: () => void): () => void {
+  ensureChannel();
+  if (!listeners.has(targetId)) listeners.set(targetId, new Set());
+  listeners.get(targetId)!.add(cb);
+  return () => {
+    const set = listeners.get(targetId);
+    if (!set) return;
+    set.delete(cb);
+    if (set.size === 0) listeners.delete(targetId);
+  };
+}
