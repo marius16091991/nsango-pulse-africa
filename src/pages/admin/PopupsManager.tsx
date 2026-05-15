@@ -29,6 +29,8 @@ const empty: Popup = {
   show_close_button: true,
   overlay: true,
   animation: "fade",
+  animation_duration: 300,
+  auto_close_seconds: 0,
   cta_label: "",
   cta_url: "",
   cta_style: "primary",
@@ -338,10 +340,41 @@ const PopupsManager = () => {
                     <SelectContent>
                       <SelectItem value="fade">Fondu</SelectItem>
                       <SelectItem value="slide">Glissement</SelectItem>
+                      <SelectItem value="slide-down">Glissement (haut)</SelectItem>
+                      <SelectItem value="slide-left">Glissement (gauche)</SelectItem>
+                      <SelectItem value="slide-right">Glissement (droite)</SelectItem>
                       <SelectItem value="zoom">Zoom</SelectItem>
+                      <SelectItem value="bounce">Rebond</SelectItem>
+                      <SelectItem value="flip">Flip</SelectItem>
                       <SelectItem value="none">Aucune</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Durée d'animation (ms)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={50}
+                    value={form.animation_duration ?? 300}
+                    onChange={e => set("animation_duration", Number(e.target.value) || 0)}
+                    placeholder="300"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Vitesse d'apparition (par défaut 300ms).</p>
+                </div>
+                <div>
+                  <Label>Fermeture automatique (sec)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={form.auto_close_seconds ?? 0}
+                    onChange={e => set("auto_close_seconds", Number(e.target.value) || 0)}
+                    placeholder="0 = désactivé"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">0 = le pop-up reste affiché jusqu'à fermeture manuelle.</p>
                 </div>
               </div>
               <div className="flex items-center gap-6">
