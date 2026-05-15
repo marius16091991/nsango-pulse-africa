@@ -40,6 +40,19 @@ const ReactionBar = ({ targetType, targetId, size = "md" }: Props) => {
 
   useEffect(() => { load(); }, [targetType, targetId, user?.id]);
 
+  // Auto-refresh en temps réel quand quelqu'un d'autre réagit
+  useEffect(() => {
+    const channel = supabase
+      .channel(`reactions-${targetType}-${targetId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "reactions", filter: `target_id=eq.${targetId}` },
+        () => load()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [targetType, targetId]);
+
   const toggle = async (emoji: "heart" | "fire" | "clap") => {
     if (busy) return;
     setBusy(emoji);
@@ -59,12 +72,18 @@ const ReactionBar = ({ targetType, targetId, size = "md" }: Props) => {
 
   const px = size === "sm" ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm";
 
+  const handleClick = (e: React.MouseEvent, key: "heart" | "fire" | "clap") => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle(key);
+  };
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
       {EMOJIS.map(e => (
         <button
           key={e.key}
-          onClick={() => toggle(e.key)}
+          onClick={(ev) => handleClick(ev, e.key)}
           disabled={busy === e.key}
           aria-label={e.label}
           className={cn(
